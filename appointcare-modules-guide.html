@@ -1,0 +1,3655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AppointCare — Full Module Guide (nWidart)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--bg:#0d0f14;--surface:#13161e;--surface2:#1a1e29;--border:#252a38;--border2:#2e3547;
+--text:#e8eaf0;--muted:#6b7394;--dim:#3d4460;
+--blue:#4f8ef7;--blue-dim:#1a2d5a;--blue-bg:#0f1a35;
+--green:#3dd68c;--green-dim:#0f3d25;--green-bg:#091f13;
+--amber:#f5a623;--amber-dim:#3d2900;--amber-bg:#1f1500;
+--red:#f75f5f;--red-dim:#3d1010;--red-bg:#1f0808;
+--purple:#a78bfa;--purple-dim:#2d1f5a;--purple-bg:#180f35;
+--teal:#2dd4bf;--teal-dim:#0f3530;--teal-bg:#071c1a;
+--accent:#4f8ef7;
+--mono:'IBM Plex Mono',monospace;
+--sans:'Sora',sans-serif;
+--radius:8px;--radius-lg:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.6}
+a{color:var(--blue);text-decoration:none}
+
+/* Layout */
+.shell{display:flex;height:100vh;overflow:hidden}
+
+/* Sidebar */
+.sidebar{
+  width:280px;min-width:280px;background:var(--surface);
+  border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden
+}
+.sidebar-header{
+  padding:20px 20px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;flex-shrink:0
+}
+.logo{
+  width:32px;height:32px;background:var(--blue);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;
+  color:#fff;font-family:var(--mono);flex-shrink:0
+}
+.sidebar-title{font-size:13px;font-weight:600;color:var(--text)}
+.sidebar-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.sidebar-nav{flex:1;overflow-y:auto;padding:8px 0}
+.sidebar-nav::-webkit-scrollbar{width:4px}
+.sidebar-nav::-webkit-scrollbar-track{background:transparent}
+.sidebar-nav::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+.nav-group{margin-bottom:4px}
+.nav-group-label{
+  font-size:10px;font-weight:600;color:var(--dim);
+  text-transform:uppercase;letter-spacing:.1em;
+  padding:10px 20px 4px
+}
+.nav-btn{
+  display:flex;align-items:center;gap:9px;width:100%;
+  background:none;border:none;padding:7px 20px;
+  color:var(--muted);cursor:pointer;font-family:var(--sans);font-size:12.5px;
+  text-align:left;transition:all .15s;border-left:2px solid transparent
+}
+.nav-btn:hover{background:var(--surface2);color:var(--text)}
+.nav-btn.active{
+  background:var(--blue-bg);color:var(--blue);
+  border-left-color:var(--blue);font-weight:500
+}
+.nav-btn .num{
+  font-family:var(--mono);font-size:10px;color:var(--dim);
+  width:18px;text-align:right;flex-shrink:0
+}
+.nav-btn.active .num{color:var(--blue);opacity:.7}
+
+/* Main content */
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.main::-webkit-scrollbar{width:6px}
+.main::-webkit-scrollbar-track{background:transparent}
+.main::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+.content-area{max-width:860px;padding:40px 48px;width:100%}
+
+/* Sections */
+.section{display:none}
+.section.active{display:block}
+
+/* Typography */
+.page-label{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--mono);font-size:10px;color:var(--muted);
+  background:var(--surface2);border:1px solid var(--border);
+  padding:3px 10px;border-radius:20px;margin-bottom:14px
+}
+h1{font-size:26px;font-weight:600;color:var(--text);line-height:1.25;margin-bottom:8px}
+h2{font-size:17px;font-weight:600;color:var(--text);margin:2rem 0 .6rem;display:flex;align-items:center;gap:8px}
+h2::before{content:'';display:block;width:3px;height:16px;background:var(--blue);border-radius:2px;flex-shrink:0}
+h3{font-size:13.5px;font-weight:600;color:var(--text);margin:1.4rem 0 .4rem}
+p{color:var(--muted);line-height:1.75;margin-bottom:.75rem;font-size:13.5px}
+.lead{font-size:15px;color:#9aa3c2;line-height:1.7;margin-bottom:1.5rem}
+
+/* Code blocks */
+.code-block{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);overflow:hidden;margin:.75rem 0 1.25rem
+}
+.code-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 14px;border-bottom:1px solid var(--border);
+  background:var(--surface2)
+}
+.code-filename{font-family:var(--mono);font-size:11px;color:var(--blue);font-weight:500}
+.code-lang{font-family:var(--mono);font-size:10px;color:var(--dim);background:var(--border);padding:2px 7px;border-radius:3px}
+.code-copy{
+  font-family:var(--mono);font-size:10px;color:var(--muted);
+  background:none;border:1px solid var(--border);padding:2px 8px;
+  border-radius:4px;cursor:pointer;transition:all .15s
+}
+.code-copy:hover{color:var(--text);border-color:var(--border2)}
+.code-copy.copied{color:var(--green);border-color:var(--green)}
+pre{
+  padding:16px 18px;overflow-x:auto;font-family:var(--mono);
+  font-size:12px;line-height:1.7;color:#c9d1f0;
+  background:var(--surface)
+}
+pre::-webkit-scrollbar{height:4px}
+pre::-webkit-scrollbar-track{background:transparent}
+pre::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+/* Syntax highlight tokens */
+.k{color:#c084fc}.s{color:var(--green)}.c{color:#4a5270;font-style:italic}
+.f{color:var(--blue)}.n{color:#e8eaf0}.v{color:var(--amber)}.t{color:var(--teal)}
+
+/* Callouts */
+.callout{
+  display:flex;gap:12px;padding:12px 16px;border-radius:var(--radius);
+  margin:.75rem 0 1.25rem;font-size:13px;line-height:1.6
+}
+.callout.info{background:var(--blue-bg);border:1px solid var(--blue-dim);color:#8ab4f8}
+.callout.warn{background:var(--amber-bg);border:1px solid var(--amber-dim);color:#f5c06f}
+.callout.success{background:var(--green-bg);border:1px solid var(--green-dim);color:#5eead4}
+.callout.tip{background:var(--purple-bg);border:1px solid var(--purple-dim);color:#c4b5fd}
+.callout-icon{flex-shrink:0;font-size:15px;margin-top:1px}
+
+/* Steps */
+.steps{display:flex;flex-direction:column;gap:8px;margin:.75rem 0}
+.step{
+  display:flex;gap:14px;padding:14px 16px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)
+}
+.step-n{
+  width:24px;height:24px;border-radius:50%;background:var(--blue-dim);
+  color:var(--blue);font-size:11px;font-weight:600;font-family:var(--mono);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px
+}
+.step-body{flex:1}
+.step-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
+.step-desc{font-size:12.5px;color:var(--muted);line-height:1.55}
+
+/* File tree */
+.file-tree{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:16px 20px;
+  font-family:var(--mono);font-size:12px;color:var(--muted);
+  line-height:2;margin:.75rem 0 1.25rem
+}
+.ft-dir{color:var(--blue);font-weight:500}
+.ft-file{color:#9aa3c2}
+.ft-comment{color:var(--dim)}
+.ft-new{color:var(--green)}
+
+/* Badges */
+.badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:10.5px;font-family:var(--mono);font-weight:500;
+  padding:2px 8px;border-radius:3px
+}
+.badge.blue{background:var(--blue-dim);color:var(--blue)}
+.badge.green{background:var(--green-dim);color:var(--green)}
+.badge.amber{background:var(--amber-dim);color:var(--amber)}
+.badge.red{background:var(--red-dim);color:var(--red)}
+.badge.purple{background:var(--purple-dim);color:var(--purple)}
+
+/* Module arch grid */
+.module-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  margin:1rem 0 1.5rem
+}
+.module-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:14px 16px;
+}
+.module-card:hover{border-color:var(--border2)}
+.mc-icon{font-size:20px;margin-bottom:8px}
+.mc-name{font-size:12px;font-weight:600;color:var(--text);font-family:var(--mono);margin-bottom:3px}
+.mc-desc{font-size:11px;color:var(--muted);line-height:1.5}
+
+/* Flow diagram */
+.flow{display:flex;align-items:center;gap:0;margin:1rem 0 1.5rem;flex-wrap:wrap}
+.flow-box{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:8px 12px;font-size:11px;
+  font-family:var(--mono);color:var(--text);text-align:center;min-width:90px
+}
+.flow-box .fl{font-size:9px;color:var(--muted);display:block;margin-bottom:2px}
+.flow-arr{color:var(--dim);padding:0 6px;font-size:16px;flex-shrink:0}
+
+/* HR */
+hr{border:none;border-top:1px solid var(--border);margin:2rem 0}
+
+/* Progress bar at top */
+.progress-bar{
+  height:2px;background:var(--blue);transition:width .3s;
+  position:sticky;top:0;z-index:10
+}
+
+/* Table of contents jump */
+.toc-chips{display:flex;flex-wrap:wrap;gap:6px;margin:1rem 0 1.5rem}
+.toc-chip{
+  font-size:11px;font-family:var(--mono);
+  padding:4px 10px;border:1px solid var(--border);border-radius:20px;
+  color:var(--muted);cursor:pointer;background:var(--surface2);transition:all .15s
+}
+.toc-chip:hover{border-color:var(--blue);color:var(--blue)}
+
+/* Inline code */
+code{
+  font-family:var(--mono);font-size:11.5px;
+  background:var(--surface2);border:1px solid var(--border);
+  padding:1px 5px;border-radius:4px;color:#c9d1f0
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">AC</div>
+    <div>
+      <div class="sidebar-title">AppointCare</div>
+      <div class="sidebar-sub">nWidart Modules · Laravel 13</div>
+    </div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-group">
+      <div class="nav-group-label">Introduction</div>
+      <button class="nav-btn active" onclick="show('overview')"><span class="num">00</span>Architecture Overview</button>
+      <button class="nav-btn" onclick="show('setup')"><span class="num">01</span>Project Setup</button>
+      <button class="nav-btn" onclick="show('modules-scaffold')"><span class="num">02</span>Module Scaffolding</button>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">Core Modules</div>
+      <button class="nav-btn" onclick="show('appointment-module')"><span class="num">03</span>Appointment Module</button>
+      <button class="nav-btn" onclick="show('twilio-module')"><span class="num">04</span>Twilio Module</button>
+      <button class="nav-btn" onclick="show('ai-module')"><span class="num">05</span>AI Call Module</button>
+      <button class="nav-btn" onclick="show('notification-module')"><span class="num">06</span>Notification Module</button>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">Automation</div>
+      <button class="nav-btn" onclick="show('jobs')"><span class="num">07</span>Jobs & Queues</button>
+      <button class="nav-btn" onclick="show('events')"><span class="num">08</span>Events & Listeners</button>
+      <button class="nav-btn" onclick="show('scheduler')"><span class="num">09</span>Scheduler</button>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">WebSocket & AI</div>
+      <button class="nav-btn" onclick="show('websocket')"><span class="num">10</span>WebSocket Server</button>
+      <button class="nav-btn" onclick="show('openai-realtime')"><span class="num">11</span>OpenAI Realtime</button>
+      <button class="nav-btn" onclick="show('function-calling')"><span class="num">12</span>Function Calling</button>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">Frontend & Deploy</div>
+      <button class="nav-btn" onclick="show('admin-ui')"><span class="num">13</span>Admin Dashboard</button>
+      <button class="nav-btn" onclick="show('broadcasting')"><span class="num">14</span>Broadcasting</button>
+      <button class="nav-btn" onclick="show('deploy')"><span class="num">15</span>Deployment</button>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main" id="mainScroll">
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+<div class="content-area">
+
+<!-- ═══════════════════════════════════════════ 00 OVERVIEW -->
+<div class="section active" id="s-overview">
+<div class="page-label">00 · Introduction</div>
+<h1>AppointCare — nWidart Module Architecture</h1>
+<p class="lead">Full-stack guide: customer fills appointment form → Laravel dispatches a job → Twilio places an AI-powered voice call → OpenAI Realtime API conducts the live conversation → appointment status auto-updates in the database.</p>
+
+<div class="flow">
+  <div class="flow-box"><span class="fl">Customer</span>Form Submit</div>
+  <div class="flow-arr">→</div>
+  <div class="flow-box"><span class="fl">Job</span>InitiateAICall</div>
+  <div class="flow-arr">→</div>
+  <div class="flow-box"><span class="fl">Twilio</span>Outbound Call</div>
+  <div class="flow-arr">→</div>
+  <div class="flow-box"><span class="fl">WebSocket</span>Media Stream</div>
+  <div class="flow-arr">→</div>
+  <div class="flow-box"><span class="fl">OpenAI</span>AI Conversation</div>
+  <div class="flow-arr">→</div>
+  <div class="flow-box"><span class="fl">Laravel</span>Status Updated</div>
+</div>
+
+<h2>Module Map</h2>
+<div class="module-grid">
+  <div class="module-card"><div class="mc-icon">📋</div><div class="mc-name">Appointment</div><div class="mc-desc">Models, migrations, form, API routes, admin CRUD</div></div>
+  <div class="module-card"><div class="mc-icon">📞</div><div class="mc-name">Twilio</div><div class="mc-desc">Outbound calling, TwiML, status callbacks, SMS</div></div>
+  <div class="module-card"><div class="mc-icon">🤖</div><div class="mc-name">AICall</div><div class="mc-desc">WebSocket bridge, OpenAI Realtime, function calling</div></div>
+  <div class="module-card"><div class="mc-icon">🔔</div><div class="mc-name">Notification</div><div class="mc-desc">SMS/email notifications, status change alerts</div></div>
+  <div class="module-card"><div class="mc-icon">📊</div><div class="mc-name">Dashboard</div><div class="mc-desc">Admin UI, real-time status board, reports</div></div>
+  <div class="module-card"><div class="mc-icon">⚙️</div><div class="mc-name">Core</div><div class="mc-desc">Shared services, helpers, base classes</div></div>
+</div>
+
+<div class="callout info"><div class="callout-icon">ℹ</div><div>All modules live under <code>Modules/</code> in the project root. Each module is self-contained with its own routes, controllers, models, migrations, views, jobs, and service providers — registered automatically via nWidart.</div></div>
+
+<h2>Full Directory Preview</h2>
+<div class="file-tree">
+<span class="ft-dir">appointcare/</span>
+├── <span class="ft-dir">app/</span>                      <span class="ft-comment"># Core Laravel app (thin)</span>
+├── <span class="ft-dir">Modules/</span>                   <span class="ft-comment"># All feature modules here</span>
+│   ├── <span class="ft-dir ft-new">Appointment/</span>
+│   │   ├── <span class="ft-dir">Http/Controllers/</span>
+│   │   ├── <span class="ft-dir">Models/</span>
+│   │   ├── <span class="ft-dir">Database/Migrations/</span>
+│   │   ├── <span class="ft-dir">Jobs/</span>
+│   │   ├── <span class="ft-dir">Routes/</span>
+│   │   └── <span class="ft-file">module.json</span>
+│   ├── <span class="ft-dir ft-new">Twilio/</span>
+│   │   ├── <span class="ft-dir">Http/Controllers/</span>
+│   │   ├── <span class="ft-dir">Services/</span>
+│   │   ├── <span class="ft-dir">Routes/</span>
+│   │   └── <span class="ft-file">module.json</span>
+│   ├── <span class="ft-dir ft-new">AICall/</span>
+│   │   ├── <span class="ft-dir">Services/</span>
+│   │   ├── <span class="ft-dir">WebSocket/</span>
+│   │   └── <span class="ft-file">module.json</span>
+│   └── <span class="ft-dir ft-new">Notification/</span>
+│       ├── <span class="ft-dir">Listeners/</span>
+│       ├── <span class="ft-dir">Notifications/</span>
+│       └── <span class="ft-file">module.json</span>
+├── <span class="ft-dir">routes/</span>
+├── <span class="ft-file">.env</span>
+└── <span class="ft-file">composer.json</span>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ 01 SETUP -->
+<div class="section" id="s-setup">
+<div class="page-label">01 · Setup</div>
+<h1>Project Setup</h1>
+<p class="lead">Install Laravel 13, configure nWidart/laravel-modules, and set up all environment variables.</p>
+
+<h2>1. Create Laravel 13 project</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">terminal</span><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre>composer create-project laravel/laravel appointcare "^13.0"
+cd appointcare</pre>
+</div>
+
+<h2>2. Install nWidart + all required packages</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">terminal</span><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre>composer require nwidart/laravel-modules
+composer require twilio/sdk
+composer require openai-php/laravel
+composer require cboden/ratchet          # PHP WebSocket server
+composer require react/event-loop        # ReactPHP event loop
+composer require textalk/websocket       # WebSocket client to OpenAI
+composer require laravel/reverb          # Real-time broadcasting
+npm install && npm install laravel-echo pusher-js</pre>
+</div>
+
+<h2>3. Publish nWidart config</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">terminal</span><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre>php artisan vendor:publish --provider="Nwidart\Modules\LaravelModulesServiceProvider"
+php artisan vendor:publish --provider="OpenAI\Laravel\ServiceProvider"
+php artisan reverb:install</pre>
+</div>
+
+<h2>4. Configure nWidart autoloading</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">composer.json</span><span class="code-lang">json</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre>{
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Modules\\": "Modules/"
+        }
+    }
+}
+</pre>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span class="code-filename">terminal</span><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre>composer dump-autoload</pre>
+</div>
+
+<h2>5. config/modules.php — key settings</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">config/modules.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">return</span> [
+    <span class="s">'namespace'</span> => <span class="s">'Modules'</span>,
+    <span class="s">'paths'</span> => [
+        <span class="s">'modules'</span>  => base_path(<span class="s">'Modules'</span>),
+        <span class="s">'assets'</span>   => public_path(<span class="s">'modules'</span>),
+        <span class="s">'migration'</span> => <span class="s">'Database/Migrations'</span>,
+    ],
+    <span class="s">'stubs'</span> => [
+        <span class="s">'enabled'</span> => <span class="k">false</span>,
+    ],
+    <span class="s">'scan'</span> => [
+        <span class="s">'enabled'</span> => <span class="k">true</span>,
+        <span class="s">'paths'</span>   => [base_path(<span class="s">'Modules'</span>)],
+    ],
+    <span class="s">'composer'</span> => [
+        <span class="s">'vendor'</span>  => <span class="s">'appointcare'</span>,
+        <span class="s">'author'</span>  => [
+            <span class="s">'name'</span>  => <span class="s">'Ankur Dawadi'</span>,
+            <span class="s">'email'</span> => <span class="s">'ankur@appointcare.com'</span>,
+        ],
+    ],
+    <span class="s">'register'</span> => [
+        <span class="s">'translations'</span> => <span class="k">true</span>,
+        <span class="s">'files'</span>        => <span class="s">'register'</span>,
+    ],
+    <span class="s">'activators'</span> => [
+        <span class="s">'file'</span> => [
+            <span class="s">'class'</span>          => FileActivator::class,
+            <span class="s">'statuses-file'</span>  => base_path(<span class="s">'modules_statuses.json'</span>),
+            <span class="s">'cache-key'</span>      => <span class="s">'activator.installed'</span>,
+            <span class="s">'cache-lifetime'</span> => 604800,
+        ],
+    ],
+];</pre>
+</div>
+
+<h2>6. .env file</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">.env</span><span class="code-lang">env</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre>APP_NAME=AppointCare
+APP_ENV=local
+APP_URL=https://your-domain.com
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=appointcare
+DB_USERNAME=root
+DB_PASSWORD=secret
+
+QUEUE_CONNECTION=redis
+CACHE_DRIVER=redis
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
+
+# Twilio
+TWILIO_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxx
+TWILIO_AUTH_TOKEN=your_auth_token_here
+TWILIO_PHONE_NUMBER=+1234567890
+TWILIO_WEBHOOK_BASE_URL=https://your-domain.com
+
+# OpenAI
+OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxx
+OPENAI_REALTIME_MODEL=gpt-4o-realtime-preview
+
+# Laravel Reverb (broadcasting)
+REVERB_APP_ID=appointcare
+REVERB_APP_KEY=your-reverb-key
+REVERB_APP_SECRET=your-reverb-secret
+REVERB_HOST=localhost
+REVERB_PORT=8080
+REVERB_SCHEME=http
+
+BROADCAST_DRIVER=reverb</pre>
+</div>
+
+<h2>7. config/services.php — add Twilio</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">config/services.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="s">'twilio'</span> => [
+    <span class="s">'sid'</span>          => env(<span class="s">'TWILIO_SID'</span>),
+    <span class="s">'token'</span>        => env(<span class="s">'TWILIO_AUTH_TOKEN'</span>),
+    <span class="s">'from'</span>         => env(<span class="s">'TWILIO_PHONE_NUMBER'</span>),
+    <span class="s">'webhook_base'</span> => env(<span class="s">'TWILIO_WEBHOOK_BASE_URL'</span>),
+],</pre>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ 02 SCAFFOLDING -->
+<div class="section" id="s-modules-scaffold">
+<div class="page-label">02 · Scaffolding</div>
+<h1>Create All Modules</h1>
+<p class="lead">Use nWidart's Artisan commands to scaffold each module. These commands create the full directory structure automatically.</p>
+
+<h2>Generate modules</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">terminal</span><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre>php artisan module:make Appointment
+php artisan module:make Twilio
+php artisan module:make AICall
+php artisan module:make Notification
+php artisan module:make Dashboard
+php artisan module:make Core</pre>
+</div>
+
+<p>Each command creates this structure (example for <code>Appointment</code>):</p>
+<div class="file-tree">
+<span class="ft-dir">Modules/Appointment/</span>
+├── <span class="ft-dir">app/</span>
+│   ├── <span class="ft-dir">Http/</span>
+│   │   ├── <span class="ft-dir">Controllers/</span>
+│   │   └── <span class="ft-dir">Requests/</span>
+│   ├── <span class="ft-dir">Models/</span>
+│   ├── <span class="ft-dir">Jobs/</span>
+│   ├── <span class="ft-dir">Events/</span>
+│   └── <span class="ft-dir">Providers/</span>
+│       └── <span class="ft-file">AppointmentServiceProvider.php</span>
+├── <span class="ft-dir">config/</span>
+├── <span class="ft-dir">database/</span>
+│   └── <span class="ft-dir">migrations/</span>
+├── <span class="ft-dir">resources/views/</span>
+├── <span class="ft-dir">routes/</span>
+│   ├── <span class="ft-file">api.php</span>
+│   └── <span class="ft-file">web.php</span>
+├── <span class="ft-dir">tests/</span>
+└── <span class="ft-file">module.json</span>
+</div>
+
+<h2>module.json for each module</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Appointment/module.json</span><span class="code-lang">json</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre>{
+    "name": "Appointment",
+    "alias": "appointment",
+    "description": "Appointment scheduling and management",
+    "keywords": ["appointment", "scheduling"],
+    "priority": 1,
+    "providers": [
+        "Modules\\Appointment\\App\\Providers\\AppointmentServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}
+</pre>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Twilio/module.json</span><span class="code-lang">json</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre>{
+    "name": "Twilio",
+    "alias": "twilio",
+    "description": "Twilio voice calls and SMS",
+    "priority": 2,
+    "providers": [
+        "Modules\\Twilio\\App\\Providers\\TwilioServiceProvider"
+    ],
+    "requires": ["Appointment"]
+}
+</pre>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/AICall/module.json</span><span class="code-lang">json</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre>{
+    "name": "AICall",
+    "alias": "aicall",
+    "description": "OpenAI Realtime API voice conversation bridge",
+    "priority": 3,
+    "providers": [
+        "Modules\\AICall\\App\\Providers\\AICallServiceProvider"
+    ],
+    "requires": ["Appointment", "Twilio"]
+}
+</pre>
+</div>
+
+<h2>Enable all modules</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">terminal</span><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre>php artisan module:enable Appointment
+php artisan module:enable Twilio
+php artisan module:enable AICall
+php artisan module:enable Notification
+php artisan module:enable Dashboard
+php artisan module:enable Core</pre>
+</div>
+
+<h2>ServiceProvider setup (same pattern for all modules)</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Appointment/App/Providers/AppointmentServiceProvider.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\Appointment\App\Providers;
+
+<span class="k">use</span> Illuminate\Support\ServiceProvider;
+<span class="k">use</span> Modules\Appointment\App\Models\Appointment;
+<span class="k">use</span> Modules\Appointment\App\Observers\AppointmentObserver;
+
+<span class="k">class</span> <span class="t">AppointmentServiceProvider</span> <span class="k">extends</span> ServiceProvider
+{
+    <span class="k">public function</span> <span class="f">register</span>(): void
+    {
+        <span class="c">// Bind module config</span>
+        $this->mergeConfigFrom(
+            __DIR__ . <span class="s">'/../../config/appointment.php'</span>, <span class="s">'appointment'</span>
+        );
+    }
+
+    <span class="k">public function</span> <span class="f">boot</span>(): void
+    {
+        <span class="c">// Load module routes</span>
+        $this->loadRoutesFrom(__DIR__ . <span class="s">'/../../routes/api.php'</span>);
+        $this->loadRoutesFrom(__DIR__ . <span class="s">'/../../routes/web.php'</span>);
+
+        <span class="c">// Load module migrations</span>
+        $this->loadMigrationsFrom(__DIR__ . <span class="s">'/../../database/migrations'</span>);
+
+        <span class="c">// Load module views</span>
+        $this->loadViewsFrom(__DIR__ . <span class="s">'/../../resources/views'</span>, <span class="s">'appointment'</span>);
+
+        <span class="c">// Register observer</span>
+        Appointment::observe(AppointmentObserver::class);
+    }
+}
+</pre>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ 03 APPOINTMENT MODULE -->
+<div class="section" id="s-appointment-module">
+<div class="page-label">03 · Module: Appointment</div>
+<h1>Appointment Module — Full Code</h1>
+
+<h2>Migration</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Appointment/database/migrations/create_appointments_table.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">use</span> Illuminate\Database\Migrations\Migration;
+<span class="k">use</span> Illuminate\Database\Schema\Blueprint;
+<span class="k">use</span> Illuminate\Support\Facades\Schema;
+
+<span class="k">return new class extends</span> Migration {
+    <span class="k">public function</span> <span class="f">up</span>(): void
+    {
+        Schema::create(<span class="s">'appointments'</span>, <span class="k">function</span> (Blueprint $table) {
+            $table->id();
+            $table->string(<span class="s">'customer_name'</span>);
+            $table->string(<span class="s">'customer_phone'</span>);        <span class="c">// E.164 format: +9771234567890</span>
+            $table->string(<span class="s">'customer_email'</span>)->nullable();
+            $table->string(<span class="s">'service_type'</span>);
+            $table->text(<span class="s">'notes'</span>)->nullable();
+            $table->dateTime(<span class="s">'preferred_datetime'</span>);
+            $table->dateTime(<span class="s">'confirmed_datetime'</span>)->nullable();
+            $table->enum(<span class="s">'status'</span>, [
+                <span class="s">'pending'</span>,       <span class="c">// Submitted, not yet called</span>
+                <span class="s">'calling'</span>,       <span class="c">// AI call in progress</span>
+                <span class="s">'confirmed'</span>,     <span class="c">// Customer confirmed via call</span>
+                <span class="s">'cancelled'</span>,     <span class="c">// Customer cancelled via call</span>
+                <span class="s">'rescheduled'</span>,   <span class="c">// New time agreed via call</span>
+                <span class="s">'no_answer'</span>,     <span class="c">// Max attempts reached</span>
+                <span class="s">'failed'</span>,        <span class="c">// Technical failure</span>
+            ])->default(<span class="s">'pending'</span>);
+            $table->string(<span class="s">'twilio_call_sid'</span>)->nullable()->index();
+            $table->string(<span class="s">'stream_sid'</span>)->nullable();
+            $table->text(<span class="s">'call_notes'</span>)->nullable();       <span class="c">// AI conversation summary</span>
+            $table->integer(<span class="s">'call_attempts'</span>)->default(<span class="v">0</span>);
+            $table->timestamp(<span class="s">'last_called_at'</span>)->nullable();
+            $table->foreignId(<span class="s">'tenant_id'</span>)->nullable()->constrained(<span class="s">'tenants'</span>); <span class="c">// Multi-tenancy</span>
+            $table->timestamps();
+            $table->softDeletes();
+        });
+    }
+
+    <span class="k">public function</span> <span class="f">down</span>(): void
+    {
+        Schema::dropIfExists(<span class="s">'appointments'</span>);
+    }
+};
+</pre>
+</div>
+
+<h2>Appointment Model</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Appointment/App/Models/Appointment.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\Appointment\App\Models;
+
+<span class="k">use</span> Illuminate\Database\Eloquent\Model;
+<span class="k">use</span> Illuminate\Database\Eloquent\SoftDeletes;
+<span class="k">use</span> Modules\Appointment\App\Events\AppointmentStatusChanged;
+
+<span class="k">class</span> <span class="t">Appointment</span> <span class="k">extends</span> Model
+{
+    <span class="k">use</span> SoftDeletes;
+
+    <span class="k">protected</span> $fillable = [
+        <span class="s">'customer_name'</span>, <span class="s">'customer_phone'</span>, <span class="s">'customer_email'</span>,
+        <span class="s">'service_type'</span>, <span class="s">'notes'</span>, <span class="s">'preferred_datetime'</span>,
+        <span class="s">'confirmed_datetime'</span>, <span class="s">'status'</span>, <span class="s">'twilio_call_sid'</span>,
+        <span class="s">'stream_sid'</span>, <span class="s">'call_notes'</span>, <span class="s">'call_attempts'</span>,
+        <span class="s">'last_called_at'</span>, <span class="s">'tenant_id'</span>,
+    ];
+
+    <span class="k">protected</span> $casts = [
+        <span class="s">'preferred_datetime'</span>  => <span class="s">'datetime'</span>,
+        <span class="s">'confirmed_datetime'</span>  => <span class="s">'datetime'</span>,
+        <span class="s">'last_called_at'</span>      => <span class="s">'datetime'</span>,
+    ];
+
+    <span class="c">// ── Helpers ────────────────────────────────────────────────────</span>
+
+    <span class="k">public function</span> <span class="f">isPending</span>(): bool
+    {
+        <span class="k">return</span> $this->status === <span class="s">'pending'</span>;
+    }
+
+    <span class="k">public function</span> <span class="f">isCalling</span>(): bool
+    {
+        <span class="k">return</span> $this->status === <span class="s">'calling'</span>;
+    }
+
+    <span class="k">public function</span> <span class="f">isResolved</span>(): bool
+    {
+        <span class="k">return</span> in_array($this->status, [<span class="s">'confirmed'</span>, <span class="s">'cancelled'</span>, <span class="s">'rescheduled'</span>]);
+    }
+
+    <span class="c">/**
+     * Update status and fire event — single point of status change.
+     */</span>
+    <span class="k">public function</span> <span class="f">markAs</span>(string $status, ?string $notes = <span class="k">null</span>): void
+    {
+        $old = $this->status;
+        $this->update([
+            <span class="s">'status'</span>     => $status,
+            <span class="s">'call_notes'</span> => $notes ?? $this->call_notes,
+        ]);
+        event(<span class="k">new</span> AppointmentStatusChanged($this, $old, $status));
+    }
+
+    <span class="k">public function</span> <span class="f">confirm</span>(?string $notes = <span class="k">null</span>): void
+    {
+        $this->update([<span class="s">'confirmed_datetime'</span> => $this->preferred_datetime]);
+        $this->markAs(<span class="s">'confirmed'</span>, $notes ?? <span class="s">'Confirmed via AI voice call.'</span>);
+    }
+
+    <span class="k">public function</span> <span class="f">cancel</span>(?string $notes = <span class="k">null</span>): void
+    {
+        $this->markAs(<span class="s">'cancelled'</span>, $notes ?? <span class="s">'Cancelled by customer via AI voice call.'</span>);
+    }
+
+    <span class="k">public function</span> <span class="f">reschedule</span>(string $newDatetime, ?string $notes = <span class="k">null</span>): void
+    {
+        $this->update([<span class="s">'confirmed_datetime'</span> => $newDatetime]);
+        $this->markAs(<span class="s">'rescheduled'</span>, $notes ?? "Rescheduled to {$newDatetime} via AI.");
+    }
+}
+</pre>
+</div>
+
+<h2>Form Request</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Appointment/App/Http/Requests/StoreAppointmentRequest.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\Appointment\App\Http\Requests;
+
+<span class="k">use</span> Illuminate\Foundation\Http\FormRequest;
+
+<span class="k">class</span> <span class="t">StoreAppointmentRequest</span> <span class="k">extends</span> FormRequest
+{
+    <span class="k">public function</span> <span class="f">rules</span>(): array
+    {
+        <span class="k">return</span> [
+            <span class="s">'customer_name'</span>      => <span class="s">'required|string|max:100'</span>,
+            <span class="s">'customer_phone'</span>     => <span class="s">'required|string|regex:/^\+[1-9]\d{7,14}$/'</span>,
+            <span class="s">'customer_email'</span>     => <span class="s">'nullable|email|max:150'</span>,
+            <span class="s">'service_type'</span>       => <span class="s">'required|string|max:100'</span>,
+            <span class="s">'preferred_datetime'</span> => <span class="s">'required|date|after:+30 minutes'</span>,
+            <span class="s">'notes'</span>              => <span class="s">'nullable|string|max:500'</span>,
+        ];
+    }
+
+    <span class="k">public function</span> <span class="f">messages</span>(): array
+    {
+        <span class="k">return</span> [
+            <span class="s">'customer_phone.regex'</span> => <span class="s">'Phone must be in international format, e.g. +9771234567890'</span>,
+        ];
+    }
+}
+</pre>
+</div>
+
+<h2>Appointment Controller</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Appointment/App/Http/Controllers/AppointmentController.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\Appointment\App\Http\Controllers;
+
+<span class="k">use</span> App\Http\Controllers\Controller;
+<span class="k">use</span> Modules\Appointment\App\Http\Requests\StoreAppointmentRequest;
+<span class="k">use</span> Modules\Appointment\App\Models\Appointment;
+<span class="k">use</span> Modules\Appointment\App\Jobs\InitiateAICall;
+<span class="k">use</span> Illuminate\Http\Request;
+<span class="k">use</span> Illuminate\Http\JsonResponse;
+
+<span class="k">class</span> <span class="t">AppointmentController</span> <span class="k">extends</span> Controller
+{
+    <span class="c">/** Customer submits the appointment form */</span>
+    <span class="k">public function</span> <span class="f">store</span>(StoreAppointmentRequest $request): JsonResponse
+    {
+        $appointment = Appointment::create($request->validated());
+
+        <span class="c">// Dispatch AI call job after 1 min delay (give customer time)</span>
+        InitiateAICall::dispatch($appointment)
+            ->delay(now()->addMinute())
+            ->onQueue(<span class="s">'calls'</span>);
+
+        <span class="k">return</span> response()->json([
+            <span class="s">'success'</span> => <span class="k">true</span>,
+            <span class="s">'message'</span> => <span class="s">'Appointment submitted! You will receive a call shortly.'</span>,
+            <span class="s">'data'</span>    => [
+                <span class="s">'id'</span>     => $appointment->id,
+                <span class="s">'status'</span> => $appointment->status,
+            ],
+        ], <span class="v">201</span>);
+    }
+
+    <span class="c">/** Admin list all appointments */</span>
+    <span class="k">public function</span> <span class="f">index</span>(Request $request): JsonResponse
+    {
+        $appointments = Appointment::query()
+            ->when($request->status, fn($q, $s) => $q->where(<span class="s">'status'</span>, $s))
+            ->when($request->date, fn($q, $d) => $q->whereDate(<span class="s">'preferred_datetime'</span>, $d))
+            ->latest()
+            ->paginate(<span class="v">20</span>);
+
+        <span class="k">return</span> response()->json($appointments);
+    }
+
+    <span class="c">/** Admin manually update status */</span>
+    <span class="k">public function</span> <span class="f">updateStatus</span>(Appointment $appointment, Request $request): JsonResponse
+    {
+        $request->validate([
+            <span class="s">'status'</span> => <span class="s">'required|in:confirmed,cancelled,rescheduled,pending'</span>,
+            <span class="s">'notes'</span>  => <span class="s">'nullable|string'</span>,
+        ]);
+
+        $appointment->markAs($request->status, $request->notes);
+
+        <span class="k">return</span> response()->json([
+            <span class="s">'success'</span> => <span class="k">true</span>,
+            <span class="s">'data'</span>    => $appointment->fresh(),
+        ]);
+    }
+
+    <span class="c">/** Admin manually trigger a call retry */</span>
+    <span class="k">public function</span> <span class="f">retryCall</span>(Appointment $appointment): JsonResponse
+    {
+        abort_if($appointment->call_attempts >= <span class="v">5</span>, <span class="v">422</span>, <span class="s">'Max call attempts reached.'</span>);
+
+        $appointment->update([<span class="s">'status'</span> => <span class="s">'pending'</span>]);
+        InitiateAICall::dispatch($appointment)->onQueue(<span class="s">'calls'</span>);
+
+        <span class="k">return</span> response()->json([<span class="s">'success'</span> => <span class="k">true</span>, <span class="s">'message'</span> => <span class="s">'Call queued.'</span>]);
+    }
+}
+</pre>
+</div>
+
+<h2>Module Routes</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Appointment/routes/api.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">use</span> Modules\Appointment\App\Http\Controllers\AppointmentController;
+<span class="k">use</span> Illuminate\Support\Facades\Route;
+
+<span class="c">// Public: customer form submission</span>
+Route::post(<span class="s">'/appointments'</span>, [AppointmentController::class, <span class="s">'store'</span>]);
+
+<span class="c">// Admin: manage appointments (protect with auth middleware)</span>
+Route::middleware([<span class="s">'auth:sanctum'</span>])->prefix(<span class="s">'admin'</span>)->group(<span class="k">function</span> () {
+    Route::get(<span class="s">'/appointments'</span>, [AppointmentController::class, <span class="s">'index'</span>]);
+    Route::patch(<span class="s">'/appointments/{appointment}/status'</span>, [AppointmentController::class, <span class="s">'updateStatus'</span>]);
+    Route::post(<span class="s">'/appointments/{appointment}/retry-call'</span>, [AppointmentController::class, <span class="s">'retryCall'</span>]);
+});
+</pre>
+</div>
+
+<h2>Observer (auto-log status changes)</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Appointment/App/Observers/AppointmentObserver.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\Appointment\App\Observers;
+
+<span class="k">use</span> Modules\Appointment\App\Models\Appointment;
+<span class="k">use</span> Illuminate\Support\Facades\Log;
+
+<span class="k">class</span> <span class="t">AppointmentObserver</span>
+{
+    <span class="k">public function</span> <span class="f">updated</span>(Appointment $appointment): void
+    {
+        <span class="k">if</span> ($appointment->wasChanged(<span class="s">'status'</span>)) {
+            Log::channel(<span class="s">'appointments'</span>)->info(<span class="s">'Status changed'</span>, [
+                <span class="s">'id'</span>     => $appointment->id,
+                <span class="s">'from'</span>   => $appointment->getOriginal(<span class="s">'status'</span>),
+                <span class="s">'to'</span>     => $appointment->status,
+                <span class="s">'phone'</span>  => $appointment->customer_phone,
+            ]);
+
+            <span class="c">// Broadcast to admin dashboard in real-time</span>
+            broadcast(<span class="k">new</span> \Modules\Appointment\App\Events\AppointmentStatusChanged(
+                $appointment,
+                $appointment->getOriginal(<span class="s">'status'</span>),
+                $appointment->status
+            ))->toOthers();
+        }
+    }
+}
+</pre>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ 04 TWILIO MODULE -->
+<div class="section" id="s-twilio-module">
+<div class="page-label">04 · Module: Twilio</div>
+<h1>Twilio Module — Full Code</h1>
+
+<h2>Twilio Service</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Twilio/App/Services/TwilioService.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\Twilio\App\Services;
+
+<span class="k">use</span> Twilio\Rest\Client;
+<span class="k">use</span> Twilio\TwiML\VoiceResponse;
+<span class="k">use</span> Modules\Appointment\App\Models\Appointment;
+<span class="k">use</span> Illuminate\Support\Facades\Log;
+
+<span class="k">class</span> <span class="t">TwilioService</span>
+{
+    <span class="k">protected</span> Client $client;
+
+    <span class="k">public function</span> <span class="f">__construct</span>()
+    {
+        $this->client = <span class="k">new</span> Client(
+            config(<span class="s">'services.twilio.sid'</span>),
+            config(<span class="s">'services.twilio.token'</span>)
+        );
+    }
+
+    <span class="c">/**
+     * Place outbound call to customer.
+     * Twilio will hit our /twilio/voice webhook when answered.
+     */</span>
+    <span class="k">public function</span> <span class="f">callCustomer</span>(Appointment $appointment): string
+    {
+        $webhookBase = config(<span class="s">'services.twilio.webhook_base'</span>);
+
+        $call = $this->client->calls->create(
+            $appointment->customer_phone,
+            config(<span class="s">'services.twilio.from'</span>),
+            [
+                <span class="s">'url'</span>    => $webhookBase . <span class="s">'/twilio/voice?appointment_id='</span> . $appointment->id,
+                <span class="s">'method'</span> => <span class="s">'POST'</span>,
+                <span class="s">'statusCallback'</span>      => $webhookBase . <span class="s">'/twilio/status?appointment_id='</span> . $appointment->id,
+                <span class="s">'statusCallbackEvent'</span> => [<span class="s">'initiated'</span>, <span class="s">'ringing'</span>, <span class="s">'answered'</span>, <span class="s">'completed'</span>],
+                <span class="s">'statusCallbackMethod'</span> => <span class="s">'POST'</span>,
+                <span class="s">'timeout'</span> => <span class="v">30</span>,
+                <span class="s">'machineDetection'</span> => <span class="s">'Enable'</span>,  <span class="c">// Auto-detect voicemail</span>
+            ]
+        );
+
+        $appointment->update([
+            <span class="s">'twilio_call_sid'</span> => $call->sid,
+            <span class="s">'status'</span>          => <span class="s">'calling'</span>,
+            <span class="s">'call_attempts'</span>   => $appointment->call_attempts + <span class="v">1</span>,
+            <span class="s">'last_called_at'</span>  => now(),
+        ]);
+
+        Log::info(<span class="s">'Call initiated'</span>, [<span class="s">'sid'</span> => $call->sid, <span class="s">'to'</span> => $appointment->customer_phone]);
+
+        <span class="k">return</span> $call->sid;
+    }
+
+    <span class="c">/** Build TwiML: greeting + media stream to our WebSocket */</span>
+    <span class="k">public function</span> <span class="f">buildVoiceTwiML</span>(Appointment $appointment): string
+    {
+        $response = <span class="k">new</span> VoiceResponse();
+
+        <span class="c">// Greeting before connecting the AI</span>
+        $response->say(
+            <span class="s">"Hello, {$appointment->customer_name}. "</span>
+            . <span class="s">"This is AppointCare calling about your {$appointment->service_type} appointment. "</span>
+            . <span class="s">"Please stay on the line, our AI assistant will be right with you."</span>,
+            [<span class="s">'voice'</span> => <span class="s">'Polly.Amy'</span>, <span class="s">'language'</span> => <span class="s">'en-GB'</span>]
+        );
+
+        <span class="c">// Connect Twilio media stream to our WebSocket server</span>
+        $connect = $response->connect();
+        $stream  = $connect->stream([
+            <span class="s">'url'</span>  => <span class="s">'wss://'</span> . parse_url(config(<span class="s">'services.twilio.webhook_base'</span>), PHP_URL_HOST)
+                     . <span class="s">'/ws/aicall/'</span> . $appointment->id,
+            <span class="s">'name'</span> => <span class="s">'openai-stream'</span>,
+        ]);
+        $stream->parameter([<span class="s">'name'</span> => <span class="s">'appointmentId'</span>, <span class="s">'value'</span> => (string) $appointment->id]);
+
+        <span class="k">return</span> (string) $response;
+    }
+
+    <span class="c">/** Send SMS to customer */</span>
+    <span class="k">public function</span> <span class="f">sendSms</span>(string $to, string $message): void
+    {
+        $this->client->messages->create($to, [
+            <span class="s">'from'</span> => config(<span class="s">'services.twilio.from'</span>),
+            <span class="s">'body'</span> => $message,
+        ]);
+    }
+}
+</pre>
+</div>
+
+<h2>Twilio Controller (Webhooks)</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Twilio/App/Http/Controllers/TwilioWebhookController.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\Twilio\App\Http\Controllers;
+
+<span class="k">use</span> App\Http\Controllers\Controller;
+<span class="k">use</span> Illuminate\Http\Request;
+<span class="k">use</span> Illuminate\Http\Response;
+<span class="k">use</span> Modules\Appointment\App\Models\Appointment;
+<span class="k">use</span> Modules\Appointment\App\Jobs\InitiateAICall;
+<span class="k">use</span> Modules\Twilio\App\Services\TwilioService;
+
+<span class="k">class</span> <span class="t">TwilioWebhookController</span> <span class="k">extends</span> Controller
+{
+    <span class="k">public function</span> <span class="f">__construct</span>(<span class="k">protected</span> TwilioService $twilio) {}
+
+    <span class="c">/**
+     * Twilio calls this when the customer answers.
+     * We return TwiML that connects them to the AI.
+     */</span>
+    <span class="k">public function</span> <span class="f">voice</span>(Request $request): Response
+    {
+        $appointment = Appointment::findOrFail($request->query(<span class="s">'appointment_id'</span>));
+
+        <span class="c">// Handle answering machine detection</span>
+        <span class="k">if</span> ($request->input(<span class="s">'AnsweredBy'</span>) === <span class="s">'machine_start'</span>) {
+            <span class="k">return</span> $this->voicemailResponse($appointment);
+        }
+
+        $twiml = $this->twilio->buildVoiceTwiML($appointment);
+
+        <span class="k">return</span> response($twiml, <span class="v">200</span>)
+            ->header(<span class="s">'Content-Type'</span>, <span class="s">'text/xml'</span>);
+    }
+
+    <span class="k">private function</span> <span class="f">voicemailResponse</span>(Appointment $appointment): Response
+    {
+        <span class="k">use</span> Twilio\TwiML\VoiceResponse;
+        $r = <span class="k">new</span> VoiceResponse();
+        $r->say(<span class="s">"Hello {$appointment->customer_name}, this is AppointCare. "</span>
+              . <span class="s">"Please call us back or check your email to confirm your appointment. Goodbye."</span>);
+        $r->hangup();
+        $appointment->markAs(<span class="s">'no_answer'</span>, <span class="s">'Voicemail detected.'</span>);
+        <span class="k">return</span> response((string)$r, <span class="v">200</span>)->header(<span class="s">'Content-Type'</span>, <span class="s">'text/xml'</span>);
+    }
+
+    <span class="c">/**
+     * Twilio status callback: completed, no-answer, busy, failed
+     */</span>
+    <span class="k">public function</span> <span class="f">statusCallback</span>(Request $request): Response
+    {
+        $callSid = $request->input(<span class="s">'CallSid'</span>);
+        $callStatus = $request->input(<span class="s">'CallStatus'</span>);
+        $appointment = Appointment::where(<span class="s">'twilio_call_sid'</span>, $callSid)->first();
+
+        <span class="k">if</span> (!$appointment) {
+            <span class="k">return</span> response(<span class="s">'OK'</span>, <span class="v">200</span>);
+        }
+
+        <span class="k">match</span> ($callStatus) {
+            <span class="s">'no-answer'</span>, <span class="s">'busy'</span> => $this->scheduleRetry($appointment),
+            <span class="s">'failed'</span>             => $appointment->markAs(<span class="s">'failed'</span>, <span class="s">'Twilio call failed.'</span>),
+            <span class="s">'completed'</span>          => <span class="k">null</span>,  <span class="c">// AI handled status via function calling</span>
+            <span class="k">default</span>              => <span class="k">null</span>,
+        };
+
+        <span class="k">return</span> response(<span class="s">'OK'</span>, <span class="v">200</span>);
+    }
+
+    <span class="k">private function</span> <span class="f">scheduleRetry</span>(Appointment $appointment): void
+    {
+        <span class="k">if</span> ($appointment->call_attempts >= <span class="v">3</span>) {
+            $appointment->markAs(<span class="s">'no_answer'</span>, <span class="s">'Maximum call attempts reached.'</span>);
+            <span class="k">return</span>;
+        }
+        <span class="c">// Retry in 1 hour</span>
+        $appointment->update([<span class="s">'status'</span> => <span class="s">'pending'</span>]);
+        InitiateAICall::dispatch($appointment)
+            ->delay(now()->addHour())
+            ->onQueue(<span class="s">'calls'</span>);
+    }
+}
+</pre>
+</div>
+
+<h2>Twilio Module Routes</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Twilio/routes/api.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">use</span> Modules\Twilio\App\Http\Controllers\TwilioWebhookController;
+<span class="k">use</span> Illuminate\Support\Facades\Route;
+
+<span class="c">// These routes must be excluded from CSRF and auth — Twilio calls them</span>
+Route::prefix(<span class="s">'twilio'</span>)
+    ->middleware([<span class="s">'twilio.validate'</span>])  <span class="c">// custom signature validation</span>
+    ->group(<span class="k">function</span> () {
+        Route::post(<span class="s">'/voice'</span>,  [TwilioWebhookController::class, <span class="s">'voice'</span>]);
+        Route::post(<span class="s">'/status'</span>, [TwilioWebhookController::class, <span class="s">'statusCallback'</span>]);
+    });
+</pre>
+</div>
+
+<h2>Twilio Webhook Signature Middleware</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Twilio/App/Http/Middleware/ValidateTwilioWebhook.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\Twilio\App\Http\Middleware;
+
+<span class="k">use</span> Closure;
+<span class="k">use</span> Illuminate\Http\Request;
+<span class="k">use</span> Twilio\Security\RequestValidator;
+
+<span class="k">class</span> <span class="t">ValidateTwilioWebhook</span>
+{
+    <span class="k">public function</span> <span class="f">handle</span>(Request $request, Closure $next): mixed
+    {
+        <span class="c">// Skip in local/testing environment</span>
+        <span class="k">if</span> (app()->environment([<span class="s">'local'</span>, <span class="s">'testing'</span>])) {
+            <span class="k">return</span> $next($request);
+        }
+
+        $validator = <span class="k">new</span> RequestValidator(config(<span class="s">'services.twilio.token'</span>));
+
+        $valid = $validator->validate(
+            $request->header(<span class="s">'X-Twilio-Signature'</span>, <span class="s">''</span>),
+            $request->fullUrl(),
+            $request->post()
+        );
+
+        abort_unless($valid, <span class="v">403</span>, <span class="s">'Invalid Twilio webhook signature.'</span>);
+
+        <span class="k">return</span> $next($request);
+    }
+}
+</pre>
+</div>
+
+<h2>Register middleware in bootstrap/app.php</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">bootstrap/app.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">use</span> Illuminate\Foundation\Application;
+<span class="k">use</span> Illuminate\Foundation\Configuration\Exceptions;
+<span class="k">use</span> Illuminate\Foundation\Configuration\Middleware;
+
+<span class="k">return</span> Application::configure(basePath: dirname(__DIR__))
+    ->withRouting(...)
+    ->withMiddleware(<span class="k">function</span> (Middleware $middleware) {
+        <span class="c">// Alias for Twilio webhook validation</span>
+        $middleware->alias([
+            <span class="s">'twilio.validate'</span> => \Modules\Twilio\App\Http\Middleware\ValidateTwilioWebhook::class,
+        ]);
+        <span class="c">// Exclude Twilio routes from CSRF</span>
+        $middleware->validateCsrfTokens(except: [
+            <span class="s">'twilio/*'</span>,
+        ]);
+    })
+    ->withExceptions(<span class="k">function</span> (Exceptions $exceptions) {})
+    ->create();
+</pre>
+</div>
+
+<h2>Twilio ServiceProvider — register service as singleton</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Twilio/App/Providers/TwilioServiceProvider.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\Twilio\App\Providers;
+
+<span class="k">use</span> Illuminate\Support\ServiceProvider;
+<span class="k">use</span> Modules\Twilio\App\Services\TwilioService;
+
+<span class="k">class</span> <span class="t">TwilioServiceProvider</span> <span class="k">extends</span> ServiceProvider
+{
+    <span class="k">public function</span> <span class="f">register</span>(): void
+    {
+        <span class="c">// Register as singleton so Twilio Client is created once</span>
+        $this->app->singleton(TwilioService::class);
+    }
+
+    <span class="k">public function</span> <span class="f">boot</span>(): void
+    {
+        $this->loadRoutesFrom(__DIR__ . <span class="s">'/../../routes/api.php'</span>);
+    }
+}
+</pre>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ 05 AI MODULE -->
+<div class="section" id="s-ai-module">
+<div class="page-label">05 · Module: AICall</div>
+<h1>AICall Module — WebSocket + OpenAI</h1>
+<p class="lead">The AICall module bridges Twilio's raw audio stream with OpenAI's Realtime API over WebSocket. Audio flows in both directions, creating a live voice conversation.</p>
+
+<div class="callout info"><div class="callout-icon">ℹ</div><div>Twilio streams audio as <strong>G.711 μ-law (PCMU)</strong> at 8kHz. OpenAI Realtime API accepts this format directly — no transcoding needed. Set <code>input_audio_format</code> and <code>output_audio_format</code> both to <code>g711_ulaw</code>.</div></div>
+
+<h2>AICall ServiceProvider</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/AICall/App/Providers/AICallServiceProvider.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\AICall\App\Providers;
+
+<span class="k">use</span> Illuminate\Support\ServiceProvider;
+<span class="k">use</span> Modules\AICall\App\Services\OpenAIRealtimeService;
+
+<span class="k">class</span> <span class="t">AICallServiceProvider</span> <span class="k">extends</span> ServiceProvider
+{
+    <span class="k">public function</span> <span class="f">register</span>(): void
+    {
+        $this->app->singleton(OpenAIRealtimeService::class);
+    }
+
+    <span class="k">public function</span> <span class="f">boot</span>(): void
+    {
+        $this->mergeConfigFrom(__DIR__ . <span class="s">'/../../config/aicall.php'</span>, <span class="s">'aicall'</span>);
+    }
+}
+</pre>
+</div>
+
+<h2>AICall Config</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/AICall/config/aicall.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">return</span> [
+    <span class="s">'model'</span>  => env(<span class="s">'OPENAI_REALTIME_MODEL'</span>, <span class="s">'gpt-4o-realtime-preview'</span>),
+    <span class="s">'voice'</span>  => <span class="s">'alloy'</span>,
+    <span class="s">'language'</span> => <span class="s">'en'</span>,
+    <span class="s">'ws_port'</span> => env(<span class="s">'WS_PORT'</span>, <span class="v">8090</span>),
+    <span class="s">'system_prompt'</span> => <span class="s">"You are a professional appointment assistant for AppointCare. "</span>
+        . <span class="s">"You are calling the customer to confirm, reschedule, or handle cancellation "</span>
+        . <span class="s">"of their appointment. Be warm, concise, and professional. "</span>
+        . <span class="s">"Always greet them by name. After they decide, call the appropriate function. "</span>
+        . <span class="s">"If they want to reschedule, ask for their preferred date and time."</span>,
+];
+</pre>
+</div>
+
+<h2>OpenAI Realtime Service</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/AICall/App/Services/OpenAIRealtimeService.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\AICall\App\Services;
+
+<span class="k">use</span> WebSocket\Client <span class="k">as</span> WsClient;
+<span class="k">use</span> Modules\Appointment\App\Models\Appointment;
+
+<span class="k">class</span> <span class="t">OpenAIRealtimeService</span>
+{
+    <span class="k">public function</span> <span class="f">createClient</span>(Appointment $appointment): WsClient
+    {
+        $model  = config(<span class="s">'aicall.model'</span>);
+        $apiKey = config(<span class="s">'openai.api_key'</span>);
+
+        $client = <span class="k">new</span> WsClient(
+            <span class="s">"wss://api.openai.com/v1/realtime?model={$model}"</span>,
+            [
+                <span class="s">'headers'</span> => [
+                    <span class="s">'Authorization'</span> => <span class="s">"Bearer {$apiKey}"</span>,
+                    <span class="s">'OpenAI-Beta'</span>   => <span class="s">'realtime=v1'</span>,
+                ],
+                <span class="s">'timeout'</span> => <span class="v">30</span>,
+            ]
+        );
+
+        <span class="c">// Send session configuration immediately after connect</span>
+        $client->send(json_encode($this->buildSessionConfig($appointment)));
+
+        <span class="k">return</span> $client;
+    }
+
+    <span class="k">private function</span> <span class="f">buildSessionConfig</span>(Appointment $appointment): array
+    {
+        $name     = $appointment->customer_name;
+        $service  = $appointment->service_type;
+        $datetime = $appointment->preferred_datetime->format(<span class="s">'l, F j \a\t g:i A'</span>);
+
+        $instructions = config(<span class="s">'aicall.system_prompt'</span>)
+            . <span class="s">"\n\nCurrent appointment details:"</span>
+            . <span class="s">"\n- Customer: {$name}"</span>
+            . <span class="s">"\n- Service: {$service}"</span>
+            . <span class="s">"\n- Scheduled time: {$datetime}"</span>
+            . <span class="s">"\n- Appointment ID: {$appointment->id}"</span>;
+
+        <span class="k">return</span> [
+            <span class="s">'type'</span>    => <span class="s">'session.update'</span>,
+            <span class="s">'session'</span> => [
+                <span class="s">'modalities'</span>          => [<span class="s">'audio'</span>, <span class="s">'text'</span>],
+                <span class="s">'instructions'</span>        => $instructions,
+                <span class="s">'voice'</span>               => config(<span class="s">'aicall.voice'</span>),
+                <span class="s">'input_audio_format'</span>  => <span class="s">'g711_ulaw'</span>,
+                <span class="s">'output_audio_format'</span> => <span class="s">'g711_ulaw'</span>,
+                <span class="s">'input_audio_transcription'</span> => [<span class="s">'model'</span> => <span class="s">'whisper-1'</span>],
+                <span class="s">'turn_detection'</span>      => [
+                    <span class="s">'type'</span>              => <span class="s">'server_vad'</span>,
+                    <span class="s">'threshold'</span>         => <span class="v">0.5</span>,
+                    <span class="s">'prefix_padding_ms'</span> => <span class="v">300</span>,
+                    <span class="s">'silence_duration_ms'</span> => <span class="v">800</span>,
+                ],
+                <span class="s">'tools'</span>               => $this->getTools(),
+                <span class="s">'tool_choice'</span>         => <span class="s">'auto'</span>,
+                <span class="s">'temperature'</span>         => <span class="v">0.7</span>,
+            ],
+        ];
+    }
+
+    <span class="k">public function</span> <span class="f">getTools</span>(): array
+    {
+        <span class="k">return</span> [
+            [
+                <span class="s">'type'</span>        => <span class="s">'function'</span>,
+                <span class="s">'name'</span>        => <span class="s">'confirm_appointment'</span>,
+                <span class="s">'description'</span> => <span class="s">'Call when the customer confirms their appointment.'</span>,
+                <span class="s">'parameters'</span>  => [<span class="s">'type'</span> => <span class="s">'object'</span>, <span class="s">'properties'</span> => []],
+            ],
+            [
+                <span class="s">'type'</span>        => <span class="s">'function'</span>,
+                <span class="s">'name'</span>        => <span class="s">'cancel_appointment'</span>,
+                <span class="s">'description'</span> => <span class="s">'Call when the customer wants to cancel.'</span>,
+                <span class="s">'parameters'</span>  => [
+                    <span class="s">'type'</span>       => <span class="s">'object'</span>,
+                    <span class="s">'properties'</span> => [
+                        <span class="s">'reason'</span> => [<span class="s">'type'</span> => <span class="s">'string'</span>, <span class="s">'description'</span> => <span class="s">'Cancellation reason if provided'</span>],
+                    ],
+                ],
+            ],
+            [
+                <span class="s">'type'</span>        => <span class="s">'function'</span>,
+                <span class="s">'name'</span>        => <span class="s">'reschedule_appointment'</span>,
+                <span class="s">'description'</span> => <span class="s">'Call when the customer wants to reschedule to a new time.'</span>,
+                <span class="s">'parameters'</span>  => [
+                    <span class="s">'type'</span>       => <span class="s">'object'</span>,
+                    <span class="s">'properties'</span> => [
+                        <span class="s">'new_datetime'</span> => [
+                            <span class="s">'type'</span>        => <span class="s">'string'</span>,
+                            <span class="s">'description'</span> => <span class="s">'New preferred datetime in ISO 8601 format'</span>,
+                        ],
+                        <span class="s">'reason'</span> => [<span class="s">'type'</span> => <span class="s">'string'</span>],
+                    ],
+                    <span class="s">'required'</span> => [<span class="s">'new_datetime'</span>],
+                ],
+            ],
+            [
+                <span class="s">'type'</span>        => <span class="s">'function'</span>,
+                <span class="s">'name'</span>        => <span class="s">'end_call'</span>,
+                <span class="s">'description'</span> => <span class="s">'Call when conversation is complete and it is time to say goodbye.'</span>,
+                <span class="s">'parameters'</span>  => [<span class="s">'type'</span> => <span class="s">'object'</span>, <span class="s">'properties'</span> => []],
+            ],
+        ];
+    }
+}
+</pre>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ 06 NOTIFICATION -->
+<div class="section" id="s-notification-module">
+<div class="page-label">06 · Module: Notification</div>
+<h1>Notification Module</h1>
+
+<h2>Appointment Status Notification (SMS + Email)</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Notification/App/Notifications/AppointmentStatusNotification.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\Notification\App\Notifications;
+
+<span class="k">use</span> Illuminate\Notifications\Notification;
+<span class="k">use</span> Illuminate\Notifications\Messages\MailMessage;
+<span class="k">use</span> Modules\Appointment\App\Models\Appointment;
+
+<span class="k">class</span> <span class="t">AppointmentStatusNotification</span> <span class="k">extends</span> Notification
+{
+    <span class="k">public function</span> <span class="f">__construct</span>(<span class="k">public readonly</span> Appointment $appointment) {}
+
+    <span class="k">public function</span> <span class="f">via</span>(): array
+    {
+        <span class="k">return</span> [<span class="s">'mail'</span>]; <span class="c">// Add 'vonage' for SMS or custom twilio channel</span>
+    }
+
+    <span class="k">public function</span> <span class="f">toMail</span>(): MailMessage
+    {
+        $apt = $this->appointment;
+        [$subject, $body, $color] = <span class="k">match</span> ($apt->status) {
+            <span class="s">'confirmed'</span> => [
+                <span class="s">'Your appointment is confirmed!'</span>,
+                <span class="s">"Great news! Your {$apt->service_type} appointment on "</span>
+                . $apt->confirmed_datetime?->format(<span class="s">'D, M j \a\t g:i A'</span>) . <span class="s">" is confirmed."</span>,
+                <span class="s">'#3dd68c'</span>,
+            ],
+            <span class="s">'cancelled'</span> => [
+                <span class="s">'Your appointment has been cancelled'</span>,
+                <span class="s">"Your {$apt->service_type} appointment has been cancelled. "</span>
+                . <span class="s">"Please book again whenever you're ready."</span>,
+                <span class="s">'#f75f5f'</span>,
+            ],
+            <span class="s">'rescheduled'</span> => [
+                <span class="s">'Your appointment has been rescheduled'</span>,
+                <span class="s">"Your {$apt->service_type} appointment has been rescheduled to "</span>
+                . $apt->confirmed_datetime?->format(<span class="s">'D, M j \a\t g:i A'</span>) . <span class="s">"."</span>,
+                <span class="s">'#f5a623'</span>,
+            ],
+            <span class="k">default</span> => [<span class="s">'Appointment Update'</span>, <span class="s">'Your appointment status has changed.'</span>, <span class="s">'#4f8ef7'</span>],
+        };
+
+        <span class="k">return</span> (<span class="k">new</span> MailMessage)
+            ->subject(<span class="s">"AppointCare: {$subject}"</span>)
+            ->greeting(<span class="s">"Hello {$apt->customer_name},"</span>)
+            ->line($body)
+            ->line($apt->call_notes ?? <span class="s">''</span>)
+            ->action(<span class="s">'Book Another Appointment'</span>, config(<span class="s">'app.url'</span>))
+            ->line(<span class="s">'Thank you for choosing AppointCare!'</span>);
+    }
+}
+</pre>
+</div>
+
+<h2>Status Change Listener</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Notification/App/Listeners/SendAppointmentNotification.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\Notification\App\Listeners;
+
+<span class="k">use</span> Modules\Appointment\App\Events\AppointmentStatusChanged;
+<span class="k">use</span> Modules\Notification\App\Notifications\AppointmentStatusNotification;
+<span class="k">use</span> Modules\Twilio\App\Services\TwilioService;
+<span class="k">use</span> Illuminate\Support\Facades\Notification;
+
+<span class="k">class</span> <span class="t">SendAppointmentNotification</span>
+{
+    <span class="k">public function</span> <span class="f">__construct</span>(<span class="k">protected</span> TwilioService $twilio) {}
+
+    <span class="k">public function</span> <span class="f">handle</span>(AppointmentStatusChanged $event): void
+    {
+        $apt = $event->appointment;
+        $resolved = [<span class="s">'confirmed'</span>, <span class="s">'cancelled'</span>, <span class="s">'rescheduled'</span>];
+
+        <span class="k">if</span> (!in_array($apt->status, $resolved)) {
+            <span class="k">return</span>;
+        }
+
+        <span class="c">// Send email if email provided</span>
+        <span class="k">if</span> ($apt->customer_email) {
+            Notification::route(<span class="s">'mail'</span>, $apt->customer_email)
+                ->notify(<span class="k">new</span> AppointmentStatusNotification($apt));
+        }
+
+        <span class="c">// Send SMS via Twilio</span>
+        $smsText = <span class="k">match</span> ($apt->status) {
+            <span class="s">'confirmed'</span>   => <span class="s">"✅ AppointCare: Your {$apt->service_type} appointment on "</span>
+                            . $apt->confirmed_datetime?->format(<span class="s">'M j \a\t g:i A'</span>) . <span class="s">" is confirmed!"</span>,
+            <span class="s">'cancelled'</span>   => <span class="s">"❌ AppointCare: Your {$apt->service_type} appointment has been cancelled."</span>,
+            <span class="s">'rescheduled'</span> => <span class="s">"🔄 AppointCare: Rescheduled to "</span>
+                            . $apt->confirmed_datetime?->format(<span class="s">'M j \a\t g:i A'</span>) . <span class="s">"."</span>,
+            <span class="k">default</span>       => <span class="k">null</span>,
+        };
+
+        <span class="k">if</span> ($smsText) {
+            $this->twilio->sendSms($apt->customer_phone, $smsText);
+        }
+    }
+}
+</pre>
+</div>
+
+<h2>AppointmentStatusChanged Event</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Appointment/App/Events/AppointmentStatusChanged.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\Appointment\App\Events;
+
+<span class="k">use</span> Illuminate\Broadcasting\Channel;
+<span class="k">use</span> Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+<span class="k">use</span> Illuminate\Foundation\Events\Dispatchable;
+<span class="k">use</span> Illuminate\Queue\SerializesModels;
+<span class="k">use</span> Modules\Appointment\App\Models\Appointment;
+
+<span class="k">class</span> <span class="t">AppointmentStatusChanged</span> <span class="k">implements</span> ShouldBroadcast
+{
+    <span class="k">use</span> Dispatchable, SerializesModels;
+
+    <span class="k">public function</span> <span class="f">__construct</span>(
+        <span class="k">public readonly</span> Appointment $appointment,
+        <span class="k">public readonly</span> string $oldStatus,
+        <span class="k">public readonly</span> string $newStatus,
+    ) {}
+
+    <span class="k">public function</span> <span class="f">broadcastOn</span>(): array
+    {
+        <span class="k">return</span> [<span class="k">new</span> Channel(<span class="s">'appointments'</span>)];
+    }
+
+    <span class="k">public function</span> <span class="f">broadcastAs</span>(): string
+    {
+        <span class="k">return</span> <span class="s">'appointment.status.changed'</span>;
+    }
+
+    <span class="k">public function</span> <span class="f">broadcastWith</span>(): array
+    {
+        <span class="k">return</span> [
+            <span class="s">'id'</span>         => $this->appointment->id,
+            <span class="s">'name'</span>       => $this->appointment->customer_name,
+            <span class="s">'service'</span>    => $this->appointment->service_type,
+            <span class="s">'old_status'</span> => $this->oldStatus,
+            <span class="s">'new_status'</span> => $this->newStatus,
+            <span class="s">'notes'</span>      => $this->appointment->call_notes,
+        ];
+    }
+}
+</pre>
+</div>
+
+<h2>Register Event → Listener in Notification ServiceProvider</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Notification/App/Providers/NotificationServiceProvider.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\Notification\App\Providers;
+
+<span class="k">use</span> Illuminate\Support\ServiceProvider;
+<span class="k">use</span> Illuminate\Support\Facades\Event;
+<span class="k">use</span> Modules\Appointment\App\Events\AppointmentStatusChanged;
+<span class="k">use</span> Modules\Notification\App\Listeners\SendAppointmentNotification;
+
+<span class="k">class</span> <span class="t">NotificationServiceProvider</span> <span class="k">extends</span> ServiceProvider
+{
+    <span class="k">public function</span> <span class="f">boot</span>(): void
+    {
+        Event::listen(
+            AppointmentStatusChanged::class,
+            SendAppointmentNotification::class
+        );
+    }
+}
+</pre>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ 07 JOBS -->
+<div class="section" id="s-jobs">
+<div class="page-label">07 · Jobs & Queues</div>
+<h1>Jobs & Queue Configuration</h1>
+
+<h2>InitiateAICall Job</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Appointment/App/Jobs/InitiateAICall.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\Appointment\App\Jobs;
+
+<span class="k">use</span> Illuminate\Bus\Queueable;
+<span class="k">use</span> Illuminate\Contracts\Queue\ShouldQueue;
+<span class="k">use</span> Illuminate\Foundation\Bus\Dispatchable;
+<span class="k">use</span> Illuminate\Queue\InteractsWithQueue;
+<span class="k">use</span> Illuminate\Queue\SerializesModels;
+<span class="k">use</span> Modules\Appointment\App\Models\Appointment;
+<span class="k">use</span> Modules\Twilio\App\Services\TwilioService;
+<span class="k">use</span> Illuminate\Support\Facades\Log;
+
+<span class="k">class</span> <span class="t">InitiateAICall</span> <span class="k">implements</span> ShouldQueue
+{
+    <span class="k">use</span> Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    <span class="k">public</span> int $tries   = <span class="v">3</span>;
+    <span class="k">public</span> int $timeout = <span class="v">60</span>;
+    <span class="k">public</span> int $backoff  = <span class="v">30</span>;   <span class="c">// seconds between retries</span>
+
+    <span class="k">public function</span> <span class="f">__construct</span>(<span class="k">public readonly</span> Appointment $appointment) {}
+
+    <span class="k">public function</span> <span class="f">handle</span>(TwilioService $twilio): void
+    {
+        $fresh = $this->appointment->fresh();
+
+        <span class="c">// Guard: only call if still pending</span>
+        <span class="k">if</span> (!$fresh->isPending()) {
+            Log::info(<span class="s">'Skipping call — appointment no longer pending'</span>, [<span class="s">'id'</span> => $fresh->id]);
+            <span class="k">return</span>;
+        }
+
+        <span class="k">try</span> {
+            $twilio->callCustomer($fresh);
+        } <span class="k">catch</span> (\Exception $e) {
+            Log::error(<span class="s">'InitiateAICall failed'</span>, [
+                <span class="s">'appointment_id'</span> => $fresh->id,
+                <span class="s">'error'</span>          => $e->getMessage(),
+            ]);
+            $this->fail($e);
+        }
+    }
+
+    <span class="k">public function</span> <span class="f">failed</span>(\Throwable $exception): void
+    {
+        $this->appointment->markAs(
+            <span class="s">'failed'</span>,
+            <span class="s">'Call job permanently failed: '</span> . $exception->getMessage()
+        );
+    }
+
+    <span class="c">/** Prevent duplicate calls for same appointment */</span>
+    <span class="k">public function</span> <span class="f">uniqueId</span>(): string
+    {
+        <span class="k">return</span> <span class="s">'ai-call-'</span> . $this->appointment->id;
+    }
+}
+</pre>
+</div>
+
+<h2>Queue configuration</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">config/queue.php — add calls queue</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="s">'redis'</span> => [
+    <span class="s">'driver'</span>      => <span class="s">'redis'</span>,
+    <span class="s">'connection'</span>  => <span class="s">'default'</span>,
+    <span class="s">'queue'</span>       => env(<span class="s">'REDIS_QUEUE'</span>, <span class="s">'default'</span>),
+    <span class="s">'retry_after'</span> => <span class="v">90</span>,
+    <span class="s">'block_for'</span>   => <span class="k">null</span>,
+],</pre>
+</div>
+
+<h2>Run workers for each queue</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">terminal</span><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="c"># Run AI call queue (high priority, separate worker)</span>
+php artisan queue:work redis --queue=calls --tries=3 --timeout=60
+
+<span class="c"># Run default queue (notifications, emails)</span>
+php artisan queue:work redis --queue=default --tries=3
+
+<span class="c"># Monitor failed jobs</span>
+php artisan queue:failed
+php artisan queue:retry all</pre>
+</div>
+
+<h2>Supervisor config for production</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">/etc/supervisor/conf.d/appointcare.conf</span><span class="code-lang">ini</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre>[program:appointcare-calls]
+process_name=%(program_name)s_%(process_num)02d
+command=php /var/www/appointcare/artisan queue:work redis --queue=calls --sleep=3 --tries=3 --timeout=60
+directory=/var/www/appointcare
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+user=www-data
+numprocs=2
+redirect_stderr=true
+stdout_logfile=/var/log/appointcare-calls.log
+
+[program:appointcare-default]
+process_name=%(program_name)s_%(process_num)02d
+command=php /var/www/appointcare/artisan queue:work redis --queue=default --sleep=3 --tries=3
+directory=/var/www/appointcare
+autostart=true
+autorestart=true
+user=www-data
+numprocs=4
+redirect_stderr=true
+stdout_logfile=/var/log/appointcare-default.log
+
+[program:appointcare-websocket]
+command=php /var/www/appointcare/artisan aicall:websocket-server
+directory=/var/www/appointcare
+autostart=true
+autorestart=true
+user=www-data
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/var/log/appointcare-ws.log
+
+[program:appointcare-reverb]
+command=php /var/www/appointcare/artisan reverb:start --host=0.0.0.0 --port=8080
+directory=/var/www/appointcare
+autostart=true
+autorestart=true
+user=www-data
+numprocs=1
+stdout_logfile=/var/log/appointcare-reverb.log</pre>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ 08 EVENTS -->
+<div class="section" id="s-events">
+<div class="page-label">08 · Events & Listeners</div>
+<h1>Events & Listeners</h1>
+
+<h2>Global event registration via AppServiceProvider</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">app/Providers/AppServiceProvider.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> App\Providers;
+
+<span class="k">use</span> Illuminate\Support\ServiceProvider;
+<span class="k">use</span> Illuminate\Support\Facades\Event;
+
+<span class="c">// Module events
+use</span> Modules\Appointment\App\Events\AppointmentStatusChanged;
+
+<span class="c">// Listeners from different modules</span>
+<span class="k">use</span> Modules\Notification\App\Listeners\SendAppointmentNotification;
+
+<span class="k">class</span> <span class="t">AppServiceProvider</span> <span class="k">extends</span> ServiceProvider
+{
+    <span class="k">public function</span> <span class="f">boot</span>(): void
+    {
+        <span class="c">// One event → multiple module listeners</span>
+        Event::listen(AppointmentStatusChanged::class, [
+            SendAppointmentNotification::class,
+            \Modules\Dashboard\App\Listeners\UpdateDashboardStats::class,
+        ]);
+    }
+}
+</pre>
+</div>
+
+<h2>Dashboard stats listener</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Dashboard/App/Listeners/UpdateDashboardStats.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\Dashboard\App\Listeners;
+
+<span class="k">use</span> Modules\Appointment\App\Events\AppointmentStatusChanged;
+<span class="k">use</span> Modules\Appointment\App\Models\Appointment;
+<span class="k">use</span> Illuminate\Support\Facades\Cache;
+
+<span class="k">class</span> <span class="t">UpdateDashboardStats</span>
+{
+    <span class="k">public function</span> <span class="f">handle</span>(AppointmentStatusChanged $event): void
+    {
+        <span class="c">// Bust dashboard stats cache on any status change</span>
+        Cache::forget(<span class="s">'dashboard.stats'</span>);
+        Cache::forget(<span class="s">'dashboard.today_appointments'</span>);
+    }
+}
+</pre>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ 09 SCHEDULER -->
+<div class="section" id="s-scheduler">
+<div class="page-label">09 · Scheduler</div>
+<h1>Laravel Scheduler — Auto Tasks</h1>
+
+<div class="code-block">
+<div class="code-header"><span class="code-filename">routes/console.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">use</span> Illuminate\Support\Facades\Schedule;
+<span class="k">use</span> Modules\Appointment\App\Models\Appointment;
+<span class="k">use</span> Modules\Appointment\App\Jobs\InitiateAICall;
+
+<span class="c">// ── Every 5 minutes: Call any new pending appointments ─────────</span>
+Schedule::call(<span class="k">function</span> () {
+    Appointment::query()
+        ->where(<span class="s">'status'</span>, <span class="s">'pending'</span>)
+        ->where(<span class="s">'call_attempts'</span>, <span class="v">0</span>)
+        ->where(<span class="s">'created_at'</span>, <span class="s">'<='</span>, now()->subMinutes(<span class="v">2</span>)) <span class="c">// 2min grace</span>
+        ->each(<span class="k">function</span> (Appointment $apt) {
+            InitiateAICall::dispatch($apt)->onQueue(<span class="s">'calls'</span>);
+        });
+})
+->everyFiveMinutes()
+->name(<span class="s">'call-new-pending-appointments'</span>)
+->withoutOverlapping();
+
+<span class="c">// ── Hourly: Retry failed/no-answer appointments ───────────────</span>
+Schedule::call(<span class="k">function</span> () {
+    Appointment::query()
+        ->where(<span class="s">'status'</span>, <span class="s">'pending'</span>)
+        ->where(<span class="s">'call_attempts'</span>, <span class="s">'>'</span>, <span class="v">0</span>)
+        ->where(<span class="s">'call_attempts'</span>, <span class="s">'<'</span>, <span class="v">3</span>)
+        ->where(<span class="s">'last_called_at'</span>, <span class="s">'<='</span>, now()->subHour())
+        ->each(<span class="k">function</span> (Appointment $apt) {
+            InitiateAICall::dispatch($apt)->onQueue(<span class="s">'calls'</span>);
+        });
+})
+->hourly()
+->name(<span class="s">'retry-unanswered-calls'</span>)
+->withoutOverlapping();
+
+<span class="c">// ── Every 15min: Mark calling→pending if stuck > 10min ───────</span>
+Schedule::call(<span class="k">function</span> () {
+    Appointment::where(<span class="s">'status'</span>, <span class="s">'calling'</span>)
+        ->where(<span class="s">'last_called_at'</span>, <span class="s">'<='</span>, now()->subMinutes(<span class="v">10</span>))
+        ->update([<span class="s">'status'</span> => <span class="s">'pending'</span>]);
+})
+->everyFifteenMinutes()
+->name(<span class="s">'reset-stuck-calling-status'</span>);
+
+<span class="c">// ── Daily 8am: Send daily summary to admin ────────────────────</span>
+Schedule::job(<span class="k">new</span> \Modules\Dashboard\App\Jobs\SendDailyReport)
+    ->dailyAt(<span class="s">'08:00'</span>)
+    ->name(<span class="s">'daily-admin-report'</span>)
+    ->timezone(<span class="s">'Asia/Kathmandu'</span>);
+
+<span class="c">// ── Daily midnight: Clean up old soft-deleted appointments ────</span>
+Schedule::call(<span class="k">function</span> () {
+    Appointment::onlyTrashed()
+        ->where(<span class="s">'deleted_at'</span>, <span class="s">'<='</span>, now()->subDays(<span class="v">30</span>))
+        ->forceDelete();
+})
+->daily()
+->name(<span class="s">'purge-old-appointments'</span>);
+</pre>
+</div>
+
+<h2>Add cron entry (production server)</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">crontab -e</span><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre>* * * * * cd /var/www/appointcare && php artisan schedule:run >> /dev/null 2>&1</pre>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ 10 WEBSOCKET -->
+<div class="section" id="s-websocket">
+<div class="page-label">10 · WebSocket Server</div>
+<h1>WebSocket Server (Ratchet)</h1>
+<p class="lead">The WebSocket server runs as a long-lived PHP process. It accepts incoming connections from Twilio's media stream and bridges them to OpenAI's Realtime API WebSocket.</p>
+
+<h2>Artisan command to start server</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/AICall/App/Console/Commands/StartWebSocketServer.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\AICall\App\Console\Commands;
+
+<span class="k">use</span> Illuminate\Console\Command;
+<span class="k">use</span> Ratchet\Server\IoServer;
+<span class="k">use</span> Ratchet\Http\HttpServer;
+<span class="k">use</span> Ratchet\WebSocket\WsServer;
+<span class="k">use</span> Modules\AICall\App\WebSocket\AICallHandler;
+
+<span class="k">class</span> <span class="t">StartWebSocketServer</span> <span class="k">extends</span> Command
+{
+    <span class="k">protected</span> $signature   = <span class="s">'aicall:websocket-server {--port=8090}'</span>;
+    <span class="k">protected</span> $description = <span class="s">'Start the AICall WebSocket server for Twilio media streams'</span>;
+
+    <span class="k">public function</span> <span class="f">handle</span>(): void
+    {
+        $port = (int) $this->option(<span class="s">'port'</span>);
+        $this->info(<span class="s">"Starting AICall WebSocket server on port {$port}..."</span>);
+
+        $server = IoServer::factory(
+            <span class="k">new</span> HttpServer(
+                <span class="k">new</span> WsServer(
+                    <span class="k">new</span> AICallHandler()
+                )
+            ),
+            $port,
+            <span class="s">'0.0.0.0'</span>
+        );
+
+        $this->info(<span class="s">"WebSocket server running. Waiting for Twilio connections..."</span>);
+        $server->run();
+    }
+}
+</pre>
+</div>
+
+<h2>Register command in AICall ServiceProvider</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/AICall/App/Providers/AICallServiceProvider.php — add to boot()</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">public function</span> <span class="f">boot</span>(): void
+{
+    $this->mergeConfigFrom(__DIR__ . <span class="s">'/../../config/aicall.php'</span>, <span class="s">'aicall'</span>);
+
+    <span class="k">if</span> ($this->app->runningInConsole()) {
+        $this->commands([
+            \Modules\AICall\App\Console\Commands\StartWebSocketServer::class,
+        ]);
+    }
+}
+</pre>
+</div>
+
+<h2>Run WebSocket server</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">terminal</span><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre>php artisan aicall:websocket-server --port=8090</pre>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ 11 OPENAI REALTIME -->
+<div class="section" id="s-openai-realtime">
+<div class="page-label">11 · OpenAI Realtime</div>
+<h1>AICallHandler — Full WebSocket Bridge</h1>
+<p class="lead">This is the core bridge class. Each WebSocket connection from Twilio gets its own OpenAI Realtime connection. Audio flows in both directions simultaneously.</p>
+
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/AICall/App/WebSocket/AICallHandler.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\AICall\App\WebSocket;
+
+<span class="k">use</span> Ratchet\MessageComponentInterface;
+<span class="k">use</span> Ratchet\ConnectionInterface;
+<span class="k">use</span> WebSocket\Client <span class="k">as</span> WsClient;
+<span class="k">use</span> Modules\Appointment\App\Models\Appointment;
+<span class="k">use</span> Modules\AICall\App\Services\OpenAIRealtimeService;
+<span class="k">use</span> Modules\AICall\App\WebSocket\FunctionCallHandler;
+<span class="k">use</span> Illuminate\Support\Facades\Log;
+
+<span class="k">class</span> <span class="t">AICallHandler</span> <span class="k">implements</span> MessageComponentInterface
+{
+    <span class="c">/** Active sessions keyed by Ratchet connection resource ID */</span>
+    <span class="k">protected</span> array $sessions = [];
+
+    <span class="k">protected</span> OpenAIRealtimeService $openaiService;
+    <span class="k">protected</span> FunctionCallHandler $functionHandler;
+
+    <span class="k">public function</span> <span class="f">__construct</span>()
+    {
+        $this->openaiService   = app(OpenAIRealtimeService::class);
+        $this->functionHandler = app(FunctionCallHandler::class);
+    }
+
+    <span class="c">/** Twilio opens a WebSocket — extract appointment ID and connect to OpenAI */</span>
+    <span class="k">public function</span> <span class="f">onOpen</span>(ConnectionInterface $conn): void
+    {
+        <span class="c">// URI format: /ws/aicall/{appointmentId}</span>
+        $path          = $conn->httpRequest->getUri()->getPath();
+        $appointmentId = (int) basename($path);
+        $appointment   = Appointment::find($appointmentId);
+
+        <span class="k">if</span> (!$appointment) {
+            Log::warning(<span class="s">'AICall: appointment not found'</span>, [<span class="s">'id'</span> => $appointmentId]);
+            $conn->close();
+            <span class="k">return</span>;
+        }
+
+        <span class="k">try</span> {
+            $openaiWs = $this->openaiService->createClient($appointment);
+        } <span class="k">catch</span> (\Exception $e) {
+            Log::error(<span class="s">'OpenAI WebSocket connection failed'</span>, [<span class="s">'error'</span> => $e->getMessage()]);
+            $conn->close();
+            <span class="k">return</span>;
+        }
+
+        $this->sessions[$conn->resourceId] = [
+            <span class="s">'twilio'</span>      => $conn,
+            <span class="s">'openai'</span>      => $openaiWs,
+            <span class="s">'appointment'</span> => $appointment,
+            <span class="s">'stream_sid'</span>  => <span class="k">null</span>,
+            <span class="s">'transcript'</span>  => [],
+        ];
+
+        Log::info(<span class="s">'AICall session opened'</span>, [
+            <span class="s">'appointment_id'</span> => $appointmentId,
+            <span class="s">'customer'</span>       => $appointment->customer_name,
+        ]);
+    }
+
+    <span class="c">/** Handle incoming Twilio WebSocket messages */</span>
+    <span class="k">public function</span> <span class="f">onMessage</span>(ConnectionInterface $from, $msg): void
+    {
+        $session = $this->sessions[$from->resourceId] ?? <span class="k">null</span>;
+        <span class="k">if</span> (!$session) <span class="k">return</span>;
+
+        $data = json_decode($msg, <span class="k">true</span>);
+        $event = $data[<span class="s">'event'</span>] ?? <span class="k">null</span>;
+
+        <span class="k">match</span> ($event) {
+            <span class="s">'start'</span>  => $this->handleStart($from->resourceId, $data),
+            <span class="s">'media'</span>  => $this->handleMedia($from->resourceId, $data),
+            <span class="s">'stop'</span>   => $this->handleStop($from->resourceId),
+            <span class="k">default</span>  => <span class="k">null</span>,
+        };
+
+        <span class="c">// Poll OpenAI for any pending responses</span>
+        $this->pollOpenAI($from->resourceId);
+    }
+
+    <span class="k">private function</span> <span class="f">handleStart</span>(int $resourceId, array $data): void
+    {
+        $this->sessions[$resourceId][<span class="s">'stream_sid'</span>] = $data[<span class="s">'streamSid'</span>] ?? <span class="k">null</span>;
+        $appointment = $this->sessions[$resourceId][<span class="s">'appointment'</span>];
+        $appointment->update([<span class="s">'stream_sid'</span> => $data[<span class="s">'streamSid'</span>] ?? <span class="k">null</span>]);
+
+        Log::info(<span class="s">'AICall media stream started'</span>, [<span class="s">'stream_sid'</span> => $data[<span class="s">'streamSid'</span>]]);
+    }
+
+    <span class="k">private function</span> <span class="f">handleMedia</span>(int $resourceId, array $data): void
+    {
+        $session  = $this->sessions[$resourceId];
+        $openaiWs = $session[<span class="s">'openai'</span>];
+
+        <span class="c">// Forward Twilio audio to OpenAI</span>
+        $openaiWs->send(json_encode([
+            <span class="s">'type'</span>  => <span class="s">'input_audio_buffer.append'</span>,
+            <span class="s">'audio'</span> => $data[<span class="s">'media'</span>][<span class="s">'payload'</span>], <span class="c">// base64 G.711 ulaw audio</span>
+        ]));
+    }
+
+    <span class="k">private function</span> <span class="f">handleStop</span>(int $resourceId): void
+    {
+        Log::info(<span class="s">'Twilio stream stopped'</span>, [<span class="s">'resource'</span> => $resourceId]);
+        $this->closeSession($resourceId);
+    }
+
+    <span class="c">/** Poll OpenAI for responses and handle them */</span>
+    <span class="k">private function</span> <span class="f">pollOpenAI</span>(int $resourceId): void
+    {
+        $session  = $this->sessions[$resourceId] ?? <span class="k">null</span>;
+        <span class="k">if</span> (!$session) <span class="k">return</span>;
+
+        $openaiWs   = $session[<span class="s">'openai'</span>];
+        $twilioConn = $session[<span class="s">'twilio'</span>];
+        $streamSid  = $session[<span class="s">'stream_sid'</span>];
+
+        <span class="k">try</span> {
+            $raw = $openaiWs->receive();
+            <span class="k">if</span> (!$raw) <span class="k">return</span>;
+
+            $event = json_decode($raw, <span class="k">true</span>);
+            $type  = $event[<span class="s">'type'</span>] ?? <span class="s">''</span>;
+
+            <span class="k">match</span> (<span class="k">true</span>) {
+                <span class="c">// Stream AI audio back to Twilio customer</span>
+                $type === <span class="s">'response.audio.delta'</span> => $twilioConn->send(json_encode([
+                    <span class="s">'event'</span>     => <span class="s">'media'</span>,
+                    <span class="s">'streamSid'</span> => $streamSid,
+                    <span class="s">'media'</span>     => [<span class="s">'payload'</span> => $event[<span class="s">'delta'</span>]],
+                ])),
+
+                <span class="c">// Mark audio buffer as committed when AI stops speaking</span>
+                $type === <span class="s">'response.audio.done'</span> => $twilioConn->send(json_encode([
+                    <span class="s">'event'</span>     => <span class="s">'mark'</span>,
+                    <span class="s">'streamSid'</span> => $streamSid,
+                    <span class="s">'mark'</span>      => [<span class="s">'name'</span> => <span class="s">'ai-done'</span>],
+                ])),
+
+                <span class="c">// Handle function calls (confirm/cancel/reschedule)</span>
+                $type === <span class="s">'response.function_call_arguments.done'</span>
+                    => $this->handleFunctionCall($resourceId, $event),
+
+                <span class="c">// Store transcript segments</span>
+                $type === <span class="s">'conversation.item.input_audio_transcription.completed'</span>
+                    => $this->storeTranscript($resourceId, <span class="s">'customer'</span>, $event[<span class="s">'transcript'</span>] ?? <span class="s">''</span>),
+
+                $type === <span class="s">'response.text.done'</span>
+                    => $this->storeTranscript($resourceId, <span class="s">'ai'</span>, $event[<span class="s">'text'</span>] ?? <span class="s">''</span>),
+
+                <span class="c">// Log errors</span>
+                $type === <span class="s">'error'</span> => Log::error(<span class="s">'OpenAI Realtime error'</span>, $event),
+
+                <span class="k">default</span> => <span class="k">null</span>,
+            };
+        } <span class="k">catch</span> (\Exception $e) {
+            <span class="c">// Non-blocking — timeout is expected when no data</span>
+        }
+    }
+
+    <span class="k">private function</span> <span class="f">handleFunctionCall</span>(int $resourceId, array $event): void
+    {
+        $session     = $this->sessions[$resourceId];
+        $appointment = $session[<span class="s">'appointment'</span>];
+        $name        = $event[<span class="s">'name'</span>];
+        $args        = json_decode($event[<span class="s">'arguments'</span>] ?? <span class="s">'{}'</span>, <span class="k">true</span>);
+
+        $this->functionHandler->handle($name, $args, $appointment);
+
+        <span class="c">// Tell OpenAI the function completed so it can continue the conversation</span>
+        $session[<span class="s">'openai'</span>]->send(json_encode([
+            <span class="s">'type'</span>    => <span class="s">'conversation.item.create'</span>,
+            <span class="s">'item'</span>    => [
+                <span class="s">'type'</span>        => <span class="s">'function_call_output'</span>,
+                <span class="s">'call_id'</span>    => $event[<span class="s">'call_id'</span>],
+                <span class="s">'output'</span>     => json_encode([<span class="s">'success'</span> => <span class="k">true</span>]),
+            ],
+        ]));
+
+        <span class="c">// Tell OpenAI to generate a verbal confirmation</span>
+        $session[<span class="s">'openai'</span>]->send(json_encode([<span class="s">'type'</span> => <span class="s">'response.create'</span>]));
+    }
+
+    <span class="k">private function</span> <span class="f">storeTranscript</span>(int $resourceId, string $speaker, string $text): void
+    {
+        $this->sessions[$resourceId][<span class="s">'transcript'</span>][] = [
+            <span class="s">'speaker'</span> => $speaker,
+            <span class="s">'text'</span>    => $text,
+            <span class="s">'time'</span>    => now()->toTimeString(),
+        ];
+    }
+
+    <span class="k">public function</span> <span class="f">onClose</span>(ConnectionInterface $conn): void
+    {
+        $session = $this->sessions[$conn->resourceId] ?? <span class="k">null</span>;
+        <span class="k">if</span> ($session) {
+            <span class="c">// Save full transcript to call_notes</span>
+            $lines = array_map(
+                fn($t) => <span class="s">"[{$t['time']}] {$t['speaker']}: {$t['text']}"</span>,
+                $session[<span class="s">'transcript'</span>]
+            );
+            $session[<span class="s">'appointment'</span>]->update([
+                <span class="s">'call_notes'</span> => implode(<span class="s">"\n"</span>, $lines),
+            ]);
+        }
+        $this->closeSession($conn->resourceId);
+    }
+
+    <span class="k">public function</span> <span class="f">onError</span>(ConnectionInterface $conn, \Exception $e): void
+    {
+        Log::error(<span class="s">'AICallHandler WebSocket error: '</span> . $e->getMessage());
+        $conn->close();
+    }
+
+    <span class="k">private function</span> <span class="f">closeSession</span>(int $resourceId): void
+    {
+        <span class="k">if</span> (isset($this->sessions[$resourceId])) {
+            <span class="k">try</span> {
+                $this->sessions[$resourceId][<span class="s">'openai'</span>]->close();
+            } <span class="k">catch</span> (\Exception $e) {}
+            unset($this->sessions[$resourceId]);
+        }
+    }
+}
+</pre>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ 12 FUNCTION CALLING -->
+<div class="section" id="s-function-calling">
+<div class="page-label">12 · Function Calling</div>
+<h1>Function Call Handler</h1>
+<p class="lead">When OpenAI decides the customer has confirmed, cancelled, or wants to reschedule, it calls one of the registered functions. This handler maps those calls to Laravel model actions.</p>
+
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/AICall/App/WebSocket/FunctionCallHandler.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\AICall\App\WebSocket;
+
+<span class="k">use</span> Modules\Appointment\App\Models\Appointment;
+<span class="k">use</span> Illuminate\Support\Facades\Log;
+
+<span class="k">class</span> <span class="t">FunctionCallHandler</span>
+{
+    <span class="c">/**
+     * Dispatch the correct appointment action based on OpenAI function name.
+     *
+     * @param  string      $functionName  confirm_appointment | cancel_appointment | reschedule_appointment | end_call
+     * @param  array       $args          Arguments from OpenAI function call
+     * @param  Appointment $appointment   The appointment being managed
+     */</span>
+    <span class="k">public function</span> <span class="f">handle</span>(string $functionName, array $args, Appointment $appointment): void
+    {
+        Log::info(<span class="s">'Function called by OpenAI'</span>, [
+            <span class="s">'function'</span>       => $functionName,
+            <span class="s">'args'</span>           => $args,
+            <span class="s">'appointment_id'</span> => $appointment->id,
+        ]);
+
+        <span class="k">match</span> ($functionName) {
+            <span class="s">'confirm_appointment'</span>    => $this->confirm($appointment),
+            <span class="s">'cancel_appointment'</span>     => $this->cancel($appointment, $args),
+            <span class="s">'reschedule_appointment'</span> => $this->reschedule($appointment, $args),
+            <span class="s">'end_call'</span>               => $this->endCall($appointment),
+            <span class="k">default</span>                  => Log::warning(<span class="s">'Unknown function: '</span> . $functionName),
+        };
+    }
+
+    <span class="k">private function</span> <span class="f">confirm</span>(Appointment $appointment): void
+    {
+        <span class="k">if</span> ($appointment->isResolved()) <span class="k">return</span>;
+
+        $appointment->confirm(<span class="s">'Customer confirmed via AI voice call.'</span>);
+
+        Log::info(<span class="s">'Appointment confirmed by AI'</span>, [<span class="s">'id'</span> => $appointment->id]);
+    }
+
+    <span class="k">private function</span> <span class="f">cancel</span>(Appointment $appointment, array $args): void
+    {
+        <span class="k">if</span> ($appointment->isResolved()) <span class="k">return</span>;
+
+        $reason = $args[<span class="s">'reason'</span>] ?? <span class="s">'No reason provided.'</span>;
+        $appointment->cancel(<span class="s">"Cancelled via AI voice call. Reason: {$reason}"</span>);
+
+        Log::info(<span class="s">'Appointment cancelled by AI'</span>, [<span class="s">'id'</span> => $appointment->id, <span class="s">'reason'</span> => $reason]);
+    }
+
+    <span class="k">private function</span> <span class="f">reschedule</span>(Appointment $appointment, array $args): void
+    {
+        <span class="k">if</span> ($appointment->isResolved()) <span class="k">return</span>;
+
+        $newDatetime = $args[<span class="s">'new_datetime'</span>] ?? <span class="k">null</span>;
+
+        <span class="k">if</span> (!$newDatetime) {
+            Log::warning(<span class="s">'Reschedule called without new_datetime'</span>, $args);
+            <span class="k">return</span>;
+        }
+
+        <span class="k">try</span> {
+            $parsed = \Carbon\Carbon::parse($newDatetime);
+        } <span class="k">catch</span> (\Exception $e) {
+            Log::error(<span class="s">'Invalid datetime from OpenAI'</span>, [<span class="s">'value'</span> => $newDatetime]);
+            <span class="k">return</span>;
+        }
+
+        $appointment->reschedule(
+            $parsed->toDateTimeString(),
+            <span class="s">"Rescheduled to {$parsed->format('D M j \a\t g:i A')} via AI voice call."</span>
+        );
+
+        Log::info(<span class="s">'Appointment rescheduled by AI'</span>, [<span class="s">'id'</span> => $appointment->id, <span class="s">'new'</span> => $parsed]);
+    }
+
+    <span class="k">private function</span> <span class="f">endCall</span>(Appointment $appointment): void
+    {
+        <span class="c">// If still unresolved after conversation, log it</span>
+        <span class="k">if</span> (!$appointment->fresh()->isResolved()) {
+            Log::info(<span class="s">'Call ended without resolution'</span>, [<span class="s">'id'</span> => $appointment->id]);
+        }
+    }
+}
+</pre>
+</div>
+
+<h2>Register FunctionCallHandler in AICall ServiceProvider</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/AICall/App/Providers/AICallServiceProvider.php — register()</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">public function</span> <span class="f">register</span>(): void
+{
+    $this->app->singleton(OpenAIRealtimeService::class);
+    $this->app->singleton(FunctionCallHandler::class);  <span class="c">// Add this</span>
+}
+</pre>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ 13 ADMIN UI -->
+<div class="section" id="s-admin-ui">
+<div class="page-label">13 · Admin Dashboard</div>
+<h1>Admin Dashboard Module</h1>
+
+<h2>Dashboard Controller</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Dashboard/App/Http/Controllers/DashboardController.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\Dashboard\App\Http\Controllers;
+
+<span class="k">use</span> App\Http\Controllers\Controller;
+<span class="k">use</span> Modules\Appointment\App\Models\Appointment;
+<span class="k">use</span> Illuminate\Support\Facades\Cache;
+<span class="k">use</span> Illuminate\Http\JsonResponse;
+
+<span class="k">class</span> <span class="t">DashboardController</span> <span class="k">extends</span> Controller
+{
+    <span class="k">public function</span> <span class="f">stats</span>(): JsonResponse
+    {
+        $stats = Cache::remember(<span class="s">'dashboard.stats'</span>, <span class="v">300</span>, <span class="k">function</span> () {
+            <span class="k">return</span> [
+                <span class="s">'total'</span>       => Appointment::count(),
+                <span class="s">'pending'</span>     => Appointment::where(<span class="s">'status'</span>, <span class="s">'pending'</span>)->count(),
+                <span class="s">'calling'</span>     => Appointment::where(<span class="s">'status'</span>, <span class="s">'calling'</span>)->count(),
+                <span class="s">'confirmed'</span>   => Appointment::where(<span class="s">'status'</span>, <span class="s">'confirmed'</span>)->count(),
+                <span class="s">'cancelled'</span>   => Appointment::where(<span class="s">'status'</span>, <span class="s">'cancelled'</span>)->count(),
+                <span class="s">'rescheduled'</span> => Appointment::where(<span class="s">'status'</span>, <span class="s">'rescheduled'</span>)->count(),
+                <span class="s">'no_answer'</span>   => Appointment::where(<span class="s">'status'</span>, <span class="s">'no_answer'</span>)->count(),
+                <span class="s">'today'</span>       => Appointment::whereDate(<span class="s">'created_at'</span>, today())->count(),
+            ];
+        });
+
+        <span class="k">return</span> response()->json($stats);
+    }
+
+    <span class="k">public function</span> <span class="f">index</span>()
+    {
+        <span class="k">return</span> view(<span class="s">'dashboard::index'</span>);
+    }
+}
+</pre>
+</div>
+
+<h2>Blade view with real-time updates</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Dashboard/resources/views/index.blade.php</span><span class="code-lang">html</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;title&gt;AppointCare Admin&lt;/title&gt;
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div id="app" x-data="appointmentBoard()"&gt;
+
+    &lt;!-- Stats row --&gt;
+    &lt;div class="stats-grid"&gt;
+        &lt;div class="stat-card" :class="{ pulse: stats.calling > 0 }"&gt;
+            &lt;span class="label"&gt;Live Calls&lt;/span&gt;
+            &lt;span class="value" x-text="stats.calling"&gt;&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;div class="stat-card"&gt;
+            &lt;span class="label"&gt;Pending&lt;/span&gt;
+            &lt;span class="value" x-text="stats.pending"&gt;&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;div class="stat-card success"&gt;
+            &lt;span class="label"&gt;Confirmed&lt;/span&gt;
+            &lt;span class="value" x-text="stats.confirmed"&gt;&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;div class="stat-card danger"&gt;
+            &lt;span class="label"&gt;Cancelled&lt;/span&gt;
+            &lt;span class="value" x-text="stats.cancelled"&gt;&lt;/span&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;!-- Live appointment list --&gt;
+    &lt;div class="appointment-list"&gt;
+        &lt;template x-for="apt in appointments" :key="apt.id"&gt;
+            &lt;div class="apt-row" :class="apt.status"&gt;
+                &lt;span class="apt-name"    x-text="apt.customer_name"&gt;&lt;/span&gt;
+                &lt;span class="apt-service" x-text="apt.service_type"&gt;&lt;/span&gt;
+                &lt;span class="apt-status badge" x-text="apt.status"&gt;&lt;/span&gt;
+                &lt;span class="apt-time"   x-text="apt.preferred_datetime"&gt;&lt;/span&gt;
+                &lt;button @click="retryCall(apt.id)" x-show="apt.status === 'no_answer'"&gt;
+                    Retry Call
+                &lt;/button&gt;
+            &lt;/div&gt;
+        &lt;/template&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+function appointmentBoard() {
+    return {
+        appointments: @json($appointments ?? []),
+        stats: @json($stats ?? []),
+
+        init() {
+            // Listen for real-time updates via Laravel Reverb
+            window.Echo.channel('appointments')
+                .listen('.appointment.status.changed', (e) => {
+                    // Update appointment in list
+                    const idx = this.appointments.findIndex(a => a.id === e.id);
+                    if (idx !== -1) {
+                        this.appointments[idx].status = e.new_status;
+                    }
+                    // Refresh stats
+                    this.fetchStats();
+                    // Show toast notification
+                    this.toast(`${e.name}: ${e.old_status} → ${e.new_status}`);
+                });
+        },
+
+        fetchStats() {
+            fetch('/api/admin/dashboard/stats')
+                .then(r => r.json())
+                .then(data => { this.stats = data; });
+        },
+
+        retryCall(id) {
+            fetch(`/api/admin/appointments/${id}/retry-call`, { method: 'POST',
+                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content }
+            }).then(() => alert('Call queued!'));
+        },
+
+        toast(msg) {
+            // Simple toast — replace with your preferred notification library
+            const el = document.createElement('div');
+            el.className = 'toast';
+            el.textContent = msg;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 4000);
+        }
+    }
+}
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ 14 BROADCASTING -->
+<div class="section" id="s-broadcasting">
+<div class="page-label">14 · Broadcasting</div>
+<h1>Real-time Broadcasting Setup</h1>
+
+<h2>Laravel Reverb (self-hosted WebSocket for broadcasting)</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">terminal</span><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre>php artisan reverb:install
+php artisan reverb:start --host=0.0.0.0 --port=8080</pre>
+</div>
+
+<h2>resources/js/echo.js — configure Laravel Echo</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">resources/js/echo.js</span><span class="code-lang">js</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre>import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
+
+window.Pusher = Pusher;
+
+window.Echo = new Echo({
+    broadcaster: 'reverb',
+    key:         import.meta.env.VITE_REVERB_APP_KEY,
+    wsHost:      import.meta.env.VITE_REVERB_HOST,
+    wsPort:      import.meta.env.VITE_REVERB_PORT ?? 8080,
+    wssPort:     import.meta.env.VITE_REVERB_PORT ?? 443,
+    forceTLS:    (import.meta.env.VITE_REVERB_SCHEME ?? 'http') === 'https',
+    enabledTransports: ['ws', 'wss'],
+});
+</pre>
+</div>
+
+<h2>Add Reverb env vars to vite</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">.env — add VITE_ prefix versions for frontend</span><span class="code-lang">env</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre>VITE_REVERB_APP_KEY="${REVERB_APP_KEY}"
+VITE_REVERB_HOST="${REVERB_HOST}"
+VITE_REVERB_PORT="${REVERB_PORT}"
+VITE_REVERB_SCHEME="${REVERB_SCHEME}"</pre>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ 15 DEPLOY -->
+<div class="section" id="s-deploy">
+<div class="page-label">15 · Deployment</div>
+<h1>Production Deployment</h1>
+
+<h2>Full deployment checklist</h2>
+<div class="steps">
+  <div class="step"><div class="step-n">1</div><div class="step-body"><div class="step-title">Optimize Laravel for production</div><div class="step-desc"><code>php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan event:cache</code></div></div></div>
+  <div class="step"><div class="step-n">2</div><div class="step-body"><div class="step-title">Run module migrations</div><div class="step-desc"><code>php artisan module:migrate --force</code> — runs migrations from all enabled modules.</div></div></div>
+  <div class="step"><div class="step-n">3</div><div class="step-body"><div class="step-title">Start Supervisor</div><div class="step-desc"><code>supervisorctl reread && supervisorctl update && supervisorctl start all</code> — starts queue workers, WebSocket server, and Reverb.</div></div></div>
+  <div class="step"><div class="step-n">4</div><div class="step-body"><div class="step-title">Add cron entry</div><div class="step-desc"><code>* * * * * cd /var/www/appointcare && php artisan schedule:run >> /dev/null 2>&1</code></div></div></div>
+  <div class="step"><div class="step-n">5</div><div class="step-body"><div class="step-title">Configure Twilio webhook URLs</div><div class="step-desc">In Twilio dashboard → Voice → your number → set Voice URL to <code>https://your-domain.com/twilio/voice</code> and Status Callback URL to <code>/twilio/status</code>.</div></div></div>
+  <div class="step"><div class="step-n">6</div><div class="step-body"><div class="step-title">Nginx — proxy all WebSocket routes</div><div class="step-desc">WebSocket server (port 8090 for Twilio audio) and Reverb (port 8080 for broadcasting) both need WSS proxy in Nginx.</div></div></div>
+  <div class="step"><div class="step-n">7</div><div class="step-body"><div class="step-title">Local dev: use ngrok</div><div class="step-desc"><code>ngrok http 8000</code> — update <code>TWILIO_WEBHOOK_BASE_URL</code> and <code>APP_URL</code> in .env to the ngrok HTTPS URL.</div></div></div>
+</div>
+
+<h2>Nginx server block</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">/etc/nginx/sites-available/appointcare</span><span class="code-lang">nginx</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre>server {
+    listen 443 ssl http2;
+    server_name your-domain.com;
+    root /var/www/appointcare/public;
+    index index.php;
+
+    ssl_certificate     /etc/letsencrypt/live/your-domain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/your-domain.com/privkey.pem;
+
+    # PHP-FPM
+    location ~ \.php$ {
+        fastcgi_pass   unix:/var/run/php/php8.3-fpm.sock;
+        fastcgi_index  index.php;
+        include        fastcgi_params;
+        fastcgi_param  SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    # Twilio media stream WebSocket (AICall module)
+    location /ws/ {
+        proxy_pass         http://127.0.0.1:8090;
+        proxy_http_version 1.1;
+        proxy_set_header   Upgrade $http_upgrade;
+        proxy_set_header   Connection "Upgrade";
+        proxy_set_header   Host $host;
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 3600s;
+    }
+
+    # Laravel Reverb (broadcasting WebSocket)
+    location /app/ {
+        proxy_pass         http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header   Upgrade $http_upgrade;
+        proxy_set_header   Connection "Upgrade";
+        proxy_set_header   Host $host;
+        proxy_read_timeout 3600s;
+    }
+}
+</pre>
+</div>
+
+<h2>Module-specific artisan commands summary</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Common nWidart commands</span><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="c"># List all modules and their status</span>
+php artisan module:list
+
+<span class="c"># Run migrations for one module</span>
+php artisan module:migrate Appointment
+php artisan module:migrate Twilio
+
+<span class="c"># Rollback a module's migrations</span>
+php artisan module:migrate-rollback Appointment
+
+<span class="c"># Create a model inside a module</span>
+php artisan module:make-model Appointment Appointment
+
+<span class="c"># Create a controller inside a module</span>
+php artisan module:make-controller AppointmentController Appointment
+
+<span class="c"># Create a job inside a module</span>
+php artisan module:make-job InitiateAICall Appointment
+
+<span class="c"># Create a seeder inside a module</span>
+php artisan module:make-seeder AppointmentSeeder Appointment
+php artisan module:seed Appointment
+
+<span class="c"># Enable / disable a module</span>
+php artisan module:enable Appointment
+php artisan module:disable AICall
+
+<span class="c"># Publish module assets</span>
+php artisan module:publish Appointment</pre>
+</div>
+
+<div class="callout success"><div class="callout-icon">✓</div><div>Your AppointCare system is now fully modular. Each feature (Appointment, Twilio, AICall, Notification, Dashboard) lives independently — you can disable, swap, or extend any module without touching the others. Perfect for a SaaS multi-tenant architecture.</div></div>
+</div>
+
+</div><!-- end content-area -->
+</div><!-- end main -->
+</div><!-- end shell -->
+
+<script>
+function show(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const section = document.getElementById('s-' + id);
+  if (section) {
+    section.classList.add('active');
+    document.querySelector('#mainScroll').scrollTop = 0;
+  }
+  event.currentTarget.classList.add('active');
+  updateProgress();
+}
+
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.textContent).then(() => {
+    btn.textContent = 'copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function updateProgress() {
+  const navBtns = document.querySelectorAll('.nav-btn');
+  const activeIdx = Array.from(navBtns).findIndex(b => b.classList.contains('active'));
+  const pct = ((activeIdx + 1) / navBtns.length) * 100;
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+updateProgress();
+</script>
+</body>
+</html>
+<!-- ============================================================
+     PART 2 — INJECTED CONTINUATION
+     All new sections appended before closing </body>
+     ============================================================ -->
+<style>
+/* Extra styles for continuation sections */
+.table-wrap{overflow-x:auto;margin:.75rem 0 1.25rem}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{background:var(--surface2);color:var(--text);font-weight:500;padding:9px 14px;text-align:left;border-bottom:2px solid var(--border2)}
+td{padding:8px 14px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+tr:hover td{background:var(--surface2)}
+td code,th code{font-size:11px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:.75rem 0 1.25rem}
+@media(max-width:700px){.two-col{grid-template-columns:1fr}}
+.env-table td:first-child{font-family:var(--mono);font-size:11px;color:var(--blue);white-space:nowrap}
+.status-pill{display:inline-block;font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:3px;font-weight:500}
+.s-pending{background:#1a1500;color:#f5a623}.s-calling{background:#0f1a35;color:#4f8ef7}
+.s-confirmed{background:#091f13;color:#3dd68c}.s-cancelled{background:#1f0808;color:#f75f5f}
+.s-rescheduled{background:#180f35;color:#a78bfa}.s-no_answer{background:#1a1005;color:#f5a623}
+.s-failed{background:#1f0808;color:#f75f5f}
+.section-divider{height:1px;background:var(--border);margin:2.5rem 0}
+</style>
+
+<!-- Add new nav items via JS -->
+<script>
+(function(){
+  var nav = document.querySelector('.sidebar-nav');
+  var groups = [
+    {label:'Testing & Debugging', items:[
+      {id:'testing',     num:'16', label:'Testing (PHPUnit)'},
+      {id:'logging',     num:'17', label:'Logging & Monitoring'},
+      {id:'debugging',   num:'18', label:'Debugging Guide'},
+    ]},
+    {label:'Advanced Features', items:[
+      {id:'multitenancy',num:'19', label:'Multi-Tenancy'},
+      {id:'security',    num:'20', label:'Security Hardening'},
+      {id:'rate-limit',  num:'21', label:'Rate Limiting'},
+      {id:'localization',num:'22', label:'Localisation / i18n'},
+    ]},
+    {label:'Extras', items:[
+      {id:'api-docs',    num:'23', label:'API Reference'},
+      {id:'env-ref',     num:'24', label:'Full .env Reference'},
+      {id:'faq',         num:'25', label:'FAQ & Troubleshooting'},
+    ]},
+  ];
+  groups.forEach(function(g){
+    var div = document.createElement('div');
+    div.className = 'nav-group';
+    var lbl = document.createElement('div');
+    lbl.className = 'nav-group-label';
+    lbl.textContent = g.label;
+    div.appendChild(lbl);
+    g.items.forEach(function(item){
+      var btn = document.createElement('button');
+      btn.className = 'nav-btn';
+      btn.setAttribute('onclick',"show('"+item.id+"')");
+      btn.innerHTML = '<span class="num">'+item.num+'</span>'+item.label;
+      div.appendChild(btn);
+    });
+    nav.appendChild(div);
+  });
+})();
+</script>
+
+<!-- Inject new sections into content-area via JS -->
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var ca = document.querySelector('.content-area');
+
+  var sections = [
+
+// ═══════════════════════════════════════ 16 TESTING
+{id:'testing', html:`
+<div class="page-label">16 · Testing</div>
+<h1>Testing — PHPUnit + Feature Tests</h1>
+<p class="lead">Each module has its own <code>tests/</code> directory. Use <code>php artisan module:make-test AppointmentTest Appointment</code> to scaffold. Run all tests with <code>php artisan test</code> or per-module with <code>php artisan test --filter=Appointment</code>.</p>
+
+<h2>Appointment Feature Test</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Appointment/tests/Feature/AppointmentTest.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\\Appointment\\Tests\\Feature;
+
+<span class="k">use</span> Tests\\TestCase;
+<span class="k">use</span> Illuminate\\Foundation\\Testing\\RefreshDatabase;
+<span class="k">use</span> Modules\\Appointment\\App\\Models\\Appointment;
+<span class="k">use</span> Modules\\Appointment\\App\\Jobs\\InitiateAICall;
+<span class="k">use</span> Illuminate\\Support\\Facades\\Queue;
+<span class="k">use</span> Illuminate\\Support\\Facades\\Event;
+<span class="k">use</span> Modules\\Appointment\\App\\Events\\AppointmentStatusChanged;
+
+<span class="k">class</span> <span class="t">AppointmentTest</span> <span class="k">extends</span> TestCase
+{
+    <span class="k">use</span> RefreshDatabase;
+
+    <span class="c">/** @test */</span>
+    <span class="k">public function</span> <span class="f">customer_can_submit_appointment_form</span>(): void
+    {
+        Queue::fake();
+
+        $response = $this->postJson(<span class="s">'/api/appointments'</span>, [
+            <span class="s">'customer_name'</span>      => <span class="s">'Ankur Dawadi'</span>,
+            <span class="s">'customer_phone'</span>     => <span class="s">'+9779841234567'</span>,
+            <span class="s">'customer_email'</span>     => <span class="s">'ankur@example.com'</span>,
+            <span class="s">'service_type'</span>       => <span class="s">'Dental Cleaning'</span>,
+            <span class="s">'preferred_datetime'</span> => now()->addDays(<span class="v">2</span>)->toDateTimeString(),
+        ]);
+
+        $response->assertStatus(<span class="v">201</span>)
+                 ->assertJsonPath(<span class="s">'success'</span>, <span class="k">true</span>)
+                 ->assertJsonPath(<span class="s">'data.status'</span>, <span class="s">'pending'</span>);
+
+        $this->assertDatabaseHas(<span class="s">'appointments'</span>, [
+            <span class="s">'customer_phone'</span> => <span class="s">'+9779841234567'</span>,
+            <span class="s">'status'</span>         => <span class="s">'pending'</span>,
+        ]);
+
+        Queue::assertPushed(InitiateAICall::class);
+    }
+
+    <span class="c">/** @test */</span>
+    <span class="k">public function</span> <span class="f">phone_must_be_in_e164_format</span>(): void
+    {
+        $response = $this->postJson(<span class="s">'/api/appointments'</span>, [
+            <span class="s">'customer_name'</span>      => <span class="s">'Test User'</span>,
+            <span class="s">'customer_phone'</span>     => <span class="s">'9841234567'</span>, <span class="c">// missing +977</span>
+            <span class="s">'service_type'</span>       => <span class="s">'Checkup'</span>,
+            <span class="s">'preferred_datetime'</span> => now()->addDay()->toDateTimeString(),
+        ]);
+
+        $response->assertStatus(<span class="v">422</span>)
+                 ->assertJsonValidationErrors(<span class="s">'customer_phone'</span>);
+    }
+
+    <span class="c">/** @test */</span>
+    <span class="k">public function</span> <span class="f">status_change_fires_event</span>(): void
+    {
+        Event::fake([AppointmentStatusChanged::class]);
+
+        $appointment = Appointment::factory()->create([<span class="s">'status'</span> => <span class="s">'pending'</span>]);
+        $appointment->confirm(<span class="s">'Test confirmation'</span>);
+
+        Event::assertDispatched(AppointmentStatusChanged::class, <span class="k">function</span> ($e) {
+            <span class="k">return</span> $e->newStatus === <span class="s">'confirmed'</span>;
+        });
+    }
+
+    <span class="c">/** @test */</span>
+    <span class="k">public function</span> <span class="f">admin_can_manually_update_status</span>(): void
+    {
+        $user        = \App\Models\User::factory()->create();
+        $appointment = Appointment::factory()->create([<span class="s">'status'</span> => <span class="s">'pending'</span>]);
+
+        $response = $this->actingAs($user, <span class="s">'sanctum'</span>)
+            ->patchJson(<span class="s">"/api/admin/appointments/{$appointment->id}/status"</span>, [
+                <span class="s">'status'</span> => <span class="s">'confirmed'</span>,
+                <span class="s">'notes'</span>  => <span class="s">'Manually confirmed by admin'</span>,
+            ]);
+
+        $response->assertOk();
+        $this->assertDatabaseHas(<span class="s">'appointments'</span>, [
+            <span class="s">'id'</span>     => $appointment->id,
+            <span class="s">'status'</span> => <span class="s">'confirmed'</span>,
+        ]);
+    }
+
+    <span class="c">/** @test */</span>
+    <span class="k">public function</span> <span class="f">max_call_attempts_prevents_further_calls</span>(): void
+    {
+        $user        = \App\Models\User::factory()->create();
+        $appointment = Appointment::factory()->create([
+            <span class="s">'status'</span>        => <span class="s">'no_answer'</span>,
+            <span class="s">'call_attempts'</span> => <span class="v">5</span>,
+        ]);
+
+        $response = $this->actingAs($user, <span class="s">'sanctum'</span>)
+            ->postJson(<span class="s">"/api/admin/appointments/{$appointment->id}/retry-call"</span>);
+
+        $response->assertStatus(<span class="v">422</span>);
+    }
+}
+</pre>
+</div>
+
+<h2>Appointment Factory</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Appointment/database/factories/AppointmentFactory.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\\Appointment\\Database\\Factories;
+
+<span class="k">use</span> Illuminate\\Database\\Eloquent\\Factories\\Factory;
+<span class="k">use</span> Modules\\Appointment\\App\\Models\\Appointment;
+
+<span class="k">class</span> <span class="t">AppointmentFactory</span> <span class="k">extends</span> Factory
+{
+    <span class="k">protected</span> $model = Appointment::class;
+
+    <span class="k">public function</span> <span class="f">definition</span>(): array
+    {
+        <span class="k">return</span> [
+            <span class="s">'customer_name'</span>      => fake()->name(),
+            <span class="s">'customer_phone'</span>     => <span class="s">'+977'</span> . fake()->numerify(<span class="s">'##########'</span>),
+            <span class="s">'customer_email'</span>     => fake()->safeEmail(),
+            <span class="s">'service_type'</span>       => fake()->randomElement([
+                <span class="s">'Dental Cleaning'</span>, <span class="s">'Eye Checkup'</span>, <span class="s">'General Consultation'</span>,
+                <span class="s">'Blood Test'</span>, <span class="s">'Physiotherapy'</span>, <span class="s">'Cardiology'</span>,
+            ]),
+            <span class="s">'notes'</span>              => fake()->optional()->sentence(),
+            <span class="s">'preferred_datetime'</span> => fake()->dateTimeBetween(<span class="s">'+1 day'</span>, <span class="s">'+30 days'</span>),
+            <span class="s">'status'</span>             => <span class="s">'pending'</span>,
+            <span class="s">'call_attempts'</span>      => <span class="v">0</span>,
+        ];
+    }
+
+    <span class="k">public function</span> <span class="f">confirmed</span>(): static
+    {
+        <span class="k">return</span> $this->state([
+            <span class="s">'status'</span>             => <span class="s">'confirmed'</span>,
+            <span class="s">'confirmed_datetime'</span> => now()->addDay(),
+        ]);
+    }
+
+    <span class="k">public function</span> <span class="f">calling</span>(): static
+    {
+        <span class="k">return</span> $this->state([
+            <span class="s">'status'</span>          => <span class="s">'calling'</span>,
+            <span class="s">'twilio_call_sid'</span> => <span class="s">'CA'</span> . fake()->regexify(<span class="s">'[a-f0-9]{32}'</span>),
+            <span class="s">'call_attempts'</span>   => <span class="v">1</span>,
+            <span class="s">'last_called_at'</span>  => now(),
+        ]);
+    }
+}
+</pre>
+</div>
+
+<h2>Twilio Webhook Test</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Twilio/tests/Feature/TwilioWebhookTest.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\\Twilio\\Tests\\Feature;
+
+<span class="k">use</span> Tests\\TestCase;
+<span class="k">use</span> Illuminate\\Foundation\\Testing\\RefreshDatabase;
+<span class="k">use</span> Modules\\Appointment\\App\\Models\\Appointment;
+<span class="k">use</span> Modules\\Appointment\\App\\Jobs\\InitiateAICall;
+<span class="k">use</span> Illuminate\\Support\\Facades\\Queue;
+
+<span class="k">class</span> <span class="t">TwilioWebhookTest</span> <span class="k">extends</span> TestCase
+{
+    <span class="k">use</span> RefreshDatabase;
+
+    <span class="c">/** @test */</span>
+    <span class="k">public function</span> <span class="f">voice_webhook_returns_valid_twiml</span>(): void
+    {
+        <span class="c">// Bypass Twilio signature middleware in test</span>
+        $this->withoutMiddleware(\\Modules\\Twilio\\App\\Http\\Middleware\\ValidateTwilioWebhook::class);
+
+        $appointment = Appointment::factory()->calling()->create();
+
+        $response = $this->postJson(<span class="s">"/twilio/voice?appointment_id={$appointment->id}"</span>);
+
+        $response->assertStatus(<span class="v">200</span>);
+        $this->assertStringContainsString(<span class="s">'&lt;Connect&gt;'</span>, $response->getContent());
+        $this->assertStringContainsString(<span class="s">'&lt;Stream'</span>,   $response->getContent());
+    }
+
+    <span class="c">/** @test */</span>
+    <span class="k">public function</span> <span class="f">no_answer_schedules_retry_under_three_attempts</span>(): void
+    {
+        Queue::fake();
+        $this->withoutMiddleware(\\Modules\\Twilio\\App\\Http\\Middleware\\ValidateTwilioWebhook::class);
+
+        $appointment = Appointment::factory()->calling()->create([<span class="s">'call_attempts'</span> => <span class="v">1</span>]);
+
+        $this->postJson(<span class="s">'/twilio/status'</span>, [
+            <span class="s">'CallSid'</span>    => $appointment->twilio_call_sid,
+            <span class="s">'CallStatus'</span> => <span class="s">'no-answer'</span>,
+        ])->assertOk();
+
+        Queue::assertPushed(InitiateAICall::class);
+        $this->assertDatabaseHas(<span class="s">'appointments'</span>, [
+            <span class="s">'id'</span>     => $appointment->id,
+            <span class="s">'status'</span> => <span class="s">'pending'</span>,
+        ]);
+    }
+
+    <span class="c">/** @test */</span>
+    <span class="k">public function</span> <span class="f">no_answer_marks_no_answer_at_max_attempts</span>(): void
+    {
+        Queue::fake();
+        $this->withoutMiddleware(\\Modules\\Twilio\\App\\Http\\Middleware\\ValidateTwilioWebhook::class);
+
+        $appointment = Appointment::factory()->calling()->create([<span class="s">'call_attempts'</span> => <span class="v">3</span>]);
+
+        $this->postJson(<span class="s">'/twilio/status'</span>, [
+            <span class="s">'CallSid'</span>    => $appointment->twilio_call_sid,
+            <span class="s">'CallStatus'</span> => <span class="s">'no-answer'</span>,
+        ]);
+
+        Queue::assertNotPushed(InitiateAICall::class);
+        $this->assertDatabaseHas(<span class="s">'appointments'</span>, [
+            <span class="s">'id'</span>     => $appointment->id,
+            <span class="s">'status'</span> => <span class="s">'no_answer'</span>,
+        ]);
+    }
+}
+</pre>
+</div>
+
+<h2>Run tests</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">terminal</span><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="c"># Run all tests</span>
+php artisan test
+
+<span class="c"># Run only Appointment module tests</span>
+php artisan test --filter=Appointment
+
+<span class="c"># Run with coverage report</span>
+php artisan test --coverage
+
+<span class="c"># Run in parallel (faster)</span>
+php artisan test --parallel</pre>
+</div>
+`},
+
+// ═══════════════════════════════════════ 17 LOGGING
+{id:'logging', html:`
+<div class="page-label">17 · Logging</div>
+<h1>Logging & Monitoring</h1>
+
+<h2>Custom logging channels</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">config/logging.php — add channels</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="s">'channels'</span> => [
+    <span class="s">'appointments'</span> => [
+        <span class="s">'driver'</span>     => <span class="s">'daily'</span>,
+        <span class="s">'path'</span>       => storage_path(<span class="s">'logs/appointments.log'</span>),
+        <span class="s">'level'</span>      => <span class="s">'debug'</span>,
+        <span class="s">'days'</span>       => <span class="v">14</span>,
+        <span class="s">'permission'</span> => <span class="v">0664</span>,
+    ],
+    <span class="s">'ai_calls'</span> => [
+        <span class="s">'driver'</span> => <span class="s">'daily'</span>,
+        <span class="s">'path'</span>   => storage_path(<span class="s">'logs/ai-calls.log'</span>),
+        <span class="s">'level'</span>  => <span class="s">'info'</span>,
+        <span class="s">'days'</span>   => <span class="v">30</span>,
+    ],
+    <span class="s">'twilio'</span> => [
+        <span class="s">'driver'</span> => <span class="s">'daily'</span>,
+        <span class="s">'path'</span>   => storage_path(<span class="s">'logs/twilio.log'</span>),
+        <span class="s">'level'</span>  => <span class="s">'info'</span>,
+        <span class="s">'days'</span>   => <span class="v">14</span>,
+    ],
+    <span class="c">// Stack: write to daily + stderr (for cloud logging)</span>
+    <span class="s">'production'</span> => [
+        <span class="s">'driver'</span>   => <span class="s">'stack'</span>,
+        <span class="s">'channels'</span> => [<span class="s">'daily'</span>, <span class="s">'stderr'</span>],
+        <span class="s">'ignore_exceptions'</span> => <span class="k">false</span>,
+    ],
+],
+</pre>
+</div>
+
+<h2>Structured log helper in Core module</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Core/App/Helpers/AppLog.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\\Core\\App\\Helpers;
+
+<span class="k">use</span> Illuminate\\Support\\Facades\\Log;
+
+<span class="k">class</span> <span class="t">AppLog</span>
+{
+    <span class="k">public static function</span> <span class="f">appointment</span>(string $message, array $context = []): void
+    {
+        Log::channel(<span class="s">'appointments'</span>)->info($message, $context);
+    }
+
+    <span class="k">public static function</span> <span class="f">aiCall</span>(string $message, array $context = []): void
+    {
+        Log::channel(<span class="s">'ai_calls'</span>)->info($message, array_merge([
+            <span class="s">'timestamp'</span> => now()->toIso8601String(),
+        ], $context));
+    }
+
+    <span class="k">public static function</span> <span class="f">twilio</span>(string $message, array $context = []): void
+    {
+        Log::channel(<span class="s">'twilio'</span>)->info($message, $context);
+    }
+
+    <span class="k">public static function</span> <span class="f">callEvent</span>(string $event, int $appointmentId, array $extra = []): void
+    {
+        self::aiCall(<span class="s">"[{$event}]"</span>, array_merge([
+            <span class="s">'appointment_id'</span> => $appointmentId,
+        ], $extra));
+    }
+}
+</pre>
+</div>
+
+<h2>Usage throughout the modules</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">anywhere in any module</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">use</span> Modules\\Core\\App\\Helpers\\AppLog;
+
+<span class="c">// In AICallHandler</span>
+AppLog::callEvent(<span class="s">'STREAM_STARTED'</span>, $appointment->id, [<span class="s">'stream_sid'</span> => $streamSid]);
+AppLog::callEvent(<span class="s">'FUNCTION_CALLED'</span>, $appointment->id, [<span class="s">'fn'</span> => $functionName]);
+AppLog::callEvent(<span class="s">'SESSION_CLOSED'</span>, $appointment->id);
+
+<span class="c">// In TwilioService</span>
+AppLog::twilio(<span class="s">'Outbound call placed'</span>, [<span class="s">'sid'</span> => $call->sid, <span class="s">'to'</span> => $phone]);
+
+<span class="c">// In Appointment model</span>
+AppLog::appointment(<span class="s">'Status changed'</span>, [<span class="s">'id'</span> => $this->id, <span class="s">'to'</span> => $status]);
+</pre>
+</div>
+
+<h2>Telescope for local debugging (optional)</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">terminal</span><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre>composer require laravel/telescope --dev
+php artisan telescope:install
+php artisan migrate
+<span class="c"># Visit /telescope — monitors jobs, events, queries, logs in real-time</span></pre>
+</div>
+`},
+
+// ═══════════════════════════════════════ 18 DEBUGGING
+{id:'debugging', html:`
+<div class="page-label">18 · Debugging</div>
+<h1>Debugging Guide</h1>
+
+<h2>Common issues & fixes</h2>
+
+<h3>1. Twilio can't reach your webhook (local dev)</h3>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">terminal</span><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="c"># Expose local server to Twilio using ngrok</span>
+ngrok http 8000
+
+<span class="c"># Update .env with the ngrok HTTPS URL</span>
+TWILIO_WEBHOOK_BASE_URL=https://abc123.ngrok-free.app
+APP_URL=https://abc123.ngrok-free.app
+
+<span class="c"># Clear config cache after .env change</span>
+php artisan config:clear</pre>
+</div>
+
+<h3>2. Signature validation fails (403)</h3>
+<div class="callout warn"><div class="callout-icon">⚠</div><div>In <code>ValidateTwilioWebhook</code> middleware, make sure the URL passed to <code>$validator->validate()</code> exactly matches the full URL Twilio used — including query string. Use <code>$request->fullUrl()</code>, not <code>$request->url()</code>. Also ensure <code>APP_URL</code> matches your public URL (no trailing slash).</div></div>
+
+<h3>3. WebSocket connection rejected by OpenAI</h3>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Debug OpenAI WebSocket connection</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="c">// Add to OpenAIRealtimeService::createClient() for debugging</span>
+<span class="k">try</span> {
+    $client = <span class="k">new</span> WsClient($url, $options);
+    <span class="c">// Send a ping to verify connection</span>
+    $client->send(json_encode([<span class="s">'type'</span> => <span class="s">'session.update'</span>, <span class="s">'session'</span> => []]));
+    $response = $client->receive();
+    Log::debug(<span class="s">'OpenAI WS test'</span>, [<span class="s">'response'</span> => $response]);
+} <span class="k">catch</span> (\\Exception $e) {
+    Log::error(<span class="s">'OpenAI WS failed: '</span> . $e->getMessage());
+    <span class="k">throw</span> $e;
+}</pre>
+</div>
+
+<h3>4. Queue jobs not running</h3>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">terminal</span><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="c"># Check Redis is running</span>
+redis-cli ping   <span class="c"># Should return PONG</span>
+
+<span class="c"># Inspect queue</span>
+php artisan queue:monitor redis:calls
+php artisan queue:failed
+
+<span class="c"># Retry a specific failed job</span>
+php artisan queue:retry {job-id}
+
+<span class="c"># Flush all failed jobs and retry</span>
+php artisan queue:flush
+php artisan queue:retry all
+
+<span class="c"># Run a job synchronously for debugging (bypasses queue)</span>
+php artisan tinker
+>>> \\Modules\\Appointment\\App\\Jobs\\InitiateAICall::dispatchSync(\\Modules\\Appointment\\App\\Models\\Appointment::find(1))</pre>
+</div>
+
+<h3>5. Module not loading (class not found)</h3>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">terminal</span><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="c"># Always run after adding new module files</span>
+composer dump-autoload
+
+<span class="c"># Verify module is enabled</span>
+php artisan module:list
+
+<span class="c"># Check modules_statuses.json</span>
+cat modules_statuses.json
+
+<span class="c"># Re-enable a module if accidentally disabled</span>
+php artisan module:enable AICall</pre>
+</div>
+
+<h3>6. Audio issues — no sound or distorted voice</h3>
+<div class="callout info"><div class="callout-icon">ℹ</div><div>Twilio uses <strong>G.711 μ-law (PCMU) at 8kHz</strong>. Make sure both <code>input_audio_format</code> and <code>output_audio_format</code> in the OpenAI session config are set to <code>g711_ulaw</code>. Never set them to <code>pcm16</code> when using Twilio streams — that requires resampling and will produce garbled audio.</div></div>
+
+<h3>7. Tinker commands for manual testing</h3>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">php artisan tinker</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="c">// Create a test appointment and trigger a call</span>
+$apt = \\Modules\\Appointment\\App\\Models\\Appointment::create([
+    <span class="s">'customer_name'</span>      => <span class="s">'Test Customer'</span>,
+    <span class="s">'customer_phone'</span>     => <span class="s">'+9779841234567'</span>,
+    <span class="s">'service_type'</span>       => <span class="s">'Test Service'</span>,
+    <span class="s">'preferred_datetime'</span> => now()->addDay(),
+    <span class="s">'status'</span>             => <span class="s">'pending'</span>,
+]);
+
+<span class="c">// Manually dispatch call job</span>
+\\Modules\\Appointment\\App\\Jobs\\InitiateAICall::dispatch($apt);
+
+<span class="c">// Check Twilio service directly</span>
+$twilio = app(\\Modules\\Twilio\\App\\Services\\TwilioService::class);
+$twilio->sendSms(<span class="s">'+9779841234567'</span>, <span class="s">'Test SMS from AppointCare'</span>);
+
+<span class="c">// Manually confirm an appointment</span>
+$apt = \\Modules\\Appointment\\App\\Models\\Appointment::find(<span class="v">1</span>);
+$apt->confirm(<span class="s">'Manually confirmed for testing'</span>);</pre>
+</div>
+`},
+
+// ═══════════════════════════════════════ 19 MULTI-TENANCY
+{id:'multitenancy', html:`
+<div class="page-label">19 · Multi-Tenancy</div>
+<h1>Multi-Tenancy Support</h1>
+<p class="lead">AppointCare is designed to serve multiple clinics/businesses. Each tenant (clinic) has its own appointments, Twilio number, and settings. Use the <code>tenant_id</code> column added to the appointments table.</p>
+
+<h2>Tenants table migration</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Core/database/migrations/create_tenants_table.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre>Schema::create(<span class="s">'tenants'</span>, <span class="k">function</span> (Blueprint $table) {
+    $table->id();
+    $table->string(<span class="s">'name'</span>);
+    $table->string(<span class="s">'slug'</span>)->unique();
+    $table->string(<span class="s">'twilio_sid'</span>)->nullable();
+    $table->string(<span class="s">'twilio_token'</span>)->nullable();
+    $table->string(<span class="s">'twilio_phone'</span>)->nullable();
+    $table->string(<span class="s">'openai_key'</span>)->nullable();   <span class="c">// Per-tenant API key</span>
+    $table->string(<span class="s">'ai_voice'</span>)->default(<span class="s">'alloy'</span>);
+    $table->text(<span class="s">'ai_instructions'</span>)->nullable();  <span class="c">// Custom system prompt</span>
+    $table->boolean(<span class="s">'is_active'</span>)->default(<span class="k">true</span>);
+    $table->timestamps();
+});
+</pre>
+</div>
+
+<h2>Tenant model</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Core/App/Models/Tenant.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\\Core\\App\\Models;
+
+<span class="k">use</span> Illuminate\\Database\\Eloquent\\Model;
+<span class="k">use</span> Modules\\Appointment\\App\\Models\\Appointment;
+
+<span class="k">class</span> <span class="t">Tenant</span> <span class="k">extends</span> Model
+{
+    <span class="k">protected</span> $fillable = [
+        <span class="s">'name'</span>, <span class="s">'slug'</span>, <span class="s">'twilio_sid'</span>, <span class="s">'twilio_token'</span>,
+        <span class="s">'twilio_phone'</span>, <span class="s">'openai_key'</span>, <span class="s">'ai_voice'</span>, <span class="s">'ai_instructions'</span>, <span class="s">'is_active'</span>,
+    ];
+
+    <span class="k">protected</span> $hidden = [<span class="s">'twilio_token'</span>, <span class="s">'openai_key'</span>]; <span class="c">// Never expose in JSON</span>
+
+    <span class="k">public function</span> <span class="f">appointments</span>()
+    {
+        <span class="k">return</span> $this->hasMany(Appointment::class);
+    }
+
+    <span class="c">/** Resolve Twilio credentials: tenant-specific or fall back to global */</span>
+    <span class="k">public function</span> <span class="f">getTwilioSidAttribute</span>($value): string
+    {
+        <span class="k">return</span> $value ?? config(<span class="s">'services.twilio.sid'</span>);
+    }
+
+    <span class="k">public function</span> <span class="f">getTwilioTokenAttribute</span>($value): string
+    {
+        <span class="k">return</span> $value ?? config(<span class="s">'services.twilio.token'</span>);
+    }
+}
+</pre>
+</div>
+
+<h2>Tenant-aware TwilioService</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Twilio/App/Services/TwilioService.php — update callCustomer()</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">public function</span> <span class="f">callCustomer</span>(Appointment $appointment): string
+{
+    <span class="c">// Use tenant's Twilio credentials if available</span>
+    $tenant = $appointment->tenant;
+    $sid    = $tenant?->twilio_sid   ?? config(<span class="s">'services.twilio.sid'</span>);
+    $token  = $tenant?->twilio_token ?? config(<span class="s">'services.twilio.token'</span>);
+    $from   = $tenant?->twilio_phone ?? config(<span class="s">'services.twilio.from'</span>);
+
+    $client = <span class="k">new</span> \\Twilio\\Rest\\Client($sid, $token);
+
+    $call = $client->calls->create(
+        $appointment->customer_phone, $from,
+        [<span class="s">'url'</span> => config(<span class="s">'services.twilio.webhook_base'</span>) . <span class="s">'/twilio/voice?appointment_id='</span> . $appointment->id]
+    );
+
+    $appointment->update([
+        <span class="s">'twilio_call_sid'</span> => $call->sid,
+        <span class="s">'status'</span>          => <span class="s">'calling'</span>,
+        <span class="s">'call_attempts'</span>   => $appointment->call_attempts + <span class="v">1</span>,
+        <span class="s">'last_called_at'</span>  => now(),
+    ]);
+
+    <span class="k">return</span> $call->sid;
+}
+</pre>
+</div>
+
+<h2>Global scope on Appointment model (filter by tenant)</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Appointment/App/Models/Scopes/TenantScope.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\\Appointment\\App\\Models\\Scopes;
+
+<span class="k">use</span> Illuminate\\Database\\Eloquent\\Builder;
+<span class="k">use</span> Illuminate\\Database\\Eloquent\\Model;
+<span class="k">use</span> Illuminate\\Database\\Eloquent\\Scope;
+
+<span class="k">class</span> <span class="t">TenantScope</span> <span class="k">implements</span> Scope
+{
+    <span class="k">public function</span> <span class="f">apply</span>(Builder $builder, Model $model): void
+    {
+        <span class="k">if</span> (auth()->check() && auth()->user()->tenant_id) {
+            $builder->where(<span class="s">'tenant_id'</span>, auth()->user()->tenant_id);
+        }
+    }
+}
+</pre>
+</div>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Add to Appointment model — booted()</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">protected static function</span> <span class="f">booted</span>(): void
+{
+    static::addGlobalScope(<span class="k">new</span> \\Modules\\Appointment\\App\\Models\\Scopes\\TenantScope());
+}
+</pre>
+</div>
+`},
+
+// ═══════════════════════════════════════ 20 SECURITY
+{id:'security', html:`
+<div class="page-label">20 · Security</div>
+<h1>Security Hardening</h1>
+
+<h2>1. Sanctum API authentication</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">terminal</span><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre>composer require laravel/sanctum
+php artisan vendor:publish --provider="Laravel\\Sanctum\\SanctumServiceProvider"
+php artisan migrate</pre>
+</div>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Admin login endpoint — app/Http/Controllers/AuthController.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">public function</span> <span class="f">login</span>(Request $request): JsonResponse
+{
+    $request->validate([
+        <span class="s">'email'</span>    => <span class="s">'required|email'</span>,
+        <span class="s">'password'</span> => <span class="s">'required'</span>,
+    ]);
+
+    <span class="k">if</span> (!auth()->attempt($request->only(<span class="s">'email'</span>, <span class="s">'password'</span>))) {
+        <span class="k">return</span> response()->json([<span class="s">'message'</span> => <span class="s">'Invalid credentials'</span>], <span class="v">401</span>);
+    }
+
+    $token = auth()->user()->createToken(<span class="s">'admin-token'</span>, [<span class="s">'admin'</span>])->plainTextToken;
+
+    <span class="k">return</span> response()->json([<span class="s">'token'</span> => $token]);
+}
+</pre>
+</div>
+
+<h2>2. Encrypt sensitive tenant data at rest</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Core/App/Models/Tenant.php — add casts</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">protected</span> $casts = [
+    <span class="s">'twilio_token'</span> => <span class="s">'encrypted'</span>,  <span class="c">// Laravel built-in encryption</span>
+    <span class="s">'openai_key'</span>   => <span class="s">'encrypted'</span>,
+];</pre>
+</div>
+
+<h2>3. Input sanitisation middleware</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">app/Http/Middleware/SanitizeInput.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> App\\Http\\Middleware;
+
+<span class="k">use</span> Closure;
+<span class="k">use</span> Illuminate\\Http\\Request;
+
+<span class="k">class</span> <span class="t">SanitizeInput</span>
+{
+    <span class="k">protected</span> array $except = [<span class="s">'password'</span>, <span class="s">'password_confirmation'</span>];
+
+    <span class="k">public function</span> <span class="f">handle</span>(Request $request, Closure $next): mixed
+    {
+        $input = $request->except($this->except);
+        array_walk_recursive($input, <span class="k">function</span> (&$value) {
+            <span class="k">if</span> (is_string($value)) {
+                $value = strip_tags(trim($value));
+            }
+        });
+        $request->merge($input);
+        <span class="k">return</span> $next($request);
+    }
+}
+</pre>
+</div>
+
+<h2>4. Security headers middleware</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">app/Http/Middleware/SecurityHeaders.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">public function</span> <span class="f">handle</span>(Request $request, Closure $next): mixed
+{
+    $response = $next($request);
+    $response->headers->set(<span class="s">'X-Content-Type-Options'</span>,   <span class="s">'nosniff'</span>);
+    $response->headers->set(<span class="s">'X-Frame-Options'</span>,           <span class="s">'SAMEORIGIN'</span>);
+    $response->headers->set(<span class="s">'X-XSS-Protection'</span>,          <span class="s">'1; mode=block'</span>);
+    $response->headers->set(<span class="s">'Referrer-Policy'</span>,            <span class="s">'strict-origin-when-cross-origin'</span>);
+    $response->headers->set(<span class="s">'Permissions-Policy'</span>,         <span class="s">'camera=(), microphone=(), geolocation=()'</span>);
+    <span class="k">return</span> $response;
+}
+</pre>
+</div>
+
+<h2>5. Phone number masking in logs</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Core/App/Helpers/MaskHelper.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">namespace</span> Modules\\Core\\App\\Helpers;
+
+<span class="k">class</span> <span class="t">MaskHelper</span>
+{
+    <span class="c">/** +9779841234567 → +977*****567 */</span>
+    <span class="k">public static function</span> <span class="f">phone</span>(string $phone): string
+    {
+        <span class="k">return</span> substr($phone, <span class="v">0</span>, <span class="v">4</span>) . str_repeat(<span class="s">'*'</span>, strlen($phone) - <span class="v">7</span>) . substr($phone, -<span class="v">3</span>);
+    }
+
+    <span class="c">/** ankur@example.com → an***@example.com */</span>
+    <span class="k">public static function</span> <span class="f">email</span>(string $email): string
+    {
+        [$name, $domain] = explode(<span class="s">'@'</span>, $email);
+        <span class="k">return</span> substr($name, <span class="v">0</span>, <span class="v">2</span>) . str_repeat(<span class="s">'*'</span>, max(<span class="v">0</span>, strlen($name) - <span class="v">2</span>)) . <span class="s">'@'</span> . $domain;
+    }
+}
+</pre>
+</div>
+`},
+
+// ═══════════════════════════════════════ 21 RATE LIMITING
+{id:'rate-limit', html:`
+<div class="page-label">21 · Rate Limiting</div>
+<h1>Rate Limiting</h1>
+
+<h2>Register rate limiters in bootstrap/app.php</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">app/Providers/AppServiceProvider.php — boot()</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">use</span> Illuminate\\Cache\\RateLimiting\\Limit;
+<span class="k">use</span> Illuminate\\Support\\Facades\\RateLimiter;
+<span class="k">use</span> Illuminate\\Http\\Request;
+
+<span class="k">public function</span> <span class="f">boot</span>(): void
+{
+    <span class="c">// Appointment form: 5 submissions per IP per hour</span>
+    RateLimiter::for(<span class="s">'appointment-submit'</span>, <span class="k">function</span> (Request $request) {
+        <span class="k">return</span> Limit::perHour(<span class="v">5</span>)->by($request->ip());
+    });
+
+    <span class="c">// Admin API: 300 requests per minute per authenticated user</span>
+    RateLimiter::for(<span class="s">'admin-api'</span>, <span class="k">function</span> (Request $request) {
+        <span class="k">return</span> Limit::perMinute(<span class="v">300</span>)->by($request->user()?->id ?: $request->ip());
+    });
+
+    <span class="c">// Retry call: 1 request per appointment per 10 minutes</span>
+    RateLimiter::for(<span class="s">'retry-call'</span>, <span class="k">function</span> (Request $request) {
+        <span class="k">return</span> Limit::perMinutes(<span class="v">10</span>, <span class="v">1</span>)
+            ->by(<span class="s">'retry-call-'</span> . $request->route(<span class="s">'appointment'</span>)?->id . <span class="s">'-'</span> . $request->ip());
+    });
+}
+</pre>
+</div>
+
+<h2>Apply rate limiters to routes</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Appointment/routes/api.php — updated</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="c">// Public form — rate limited</span>
+Route::middleware([<span class="s">'throttle:appointment-submit'</span>])
+    ->post(<span class="s">'/appointments'</span>, [AppointmentController::class, <span class="s">'store'</span>]);
+
+<span class="c">// Admin routes — auth + admin rate limit</span>
+Route::middleware([<span class="s">'auth:sanctum'</span>, <span class="s">'throttle:admin-api'</span>])->prefix(<span class="s">'admin'</span>)->group(<span class="k">function</span> () {
+    Route::get(<span class="s">'/appointments'</span>,                           [AppointmentController::class, <span class="s">'index'</span>]);
+    Route::patch(<span class="s">'/appointments/{appointment}/status'</span>,   [AppointmentController::class, <span class="s">'updateStatus'</span>]);
+    Route::post(<span class="s">'/appointments/{appointment}/retry-call'</span>,
+        [AppointmentController::class, <span class="s">'retryCall'</span>])->middleware(<span class="s">'throttle:retry-call'</span>);
+});
+</pre>
+</div>
+`},
+
+// ═══════════════════════════════════════ 22 LOCALISATION
+{id:'localization', html:`
+<div class="page-label">22 · i18n</div>
+<h1>Localisation / i18n</h1>
+<p class="lead">AppointCare serves customers in Nepal (Nepali/English). The AI prompt, SMS messages, and email notifications can be sent in the customer's detected language.</p>
+
+<h2>Language files structure</h2>
+<div class="file-tree">
+<span class="ft-dir">Modules/Appointment/resources/lang/</span>
+├── <span class="ft-dir">en/</span>
+│   ├── <span class="ft-file">messages.php</span>
+│   └── <span class="ft-file">sms.php</span>
+└── <span class="ft-dir">ne/</span>           <span class="ft-comment"># Nepali</span>
+    ├── <span class="ft-file">messages.php</span>
+    └── <span class="ft-file">sms.php</span>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Appointment/resources/lang/en/sms.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">return</span> [
+    <span class="s">'confirmed'</span>   => <span class="s">'✅ AppointCare: Your :service appointment on :date is confirmed!'</span>,
+    <span class="s">'cancelled'</span>   => <span class="s">'❌ AppointCare: Your :service appointment has been cancelled.'</span>,
+    <span class="s">'rescheduled'</span> => <span class="s">'🔄 AppointCare: Rescheduled to :date. See you then!'</span>,
+];
+</pre>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Appointment/resources/lang/ne/sms.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">return</span> [
+    <span class="s">'confirmed'</span>   => <span class="s">'✅ AppointCare: तपाईंको :date मा :service अपोइन्टमेन्ट सुनिश्चित भयो!'</span>,
+    <span class="s">'cancelled'</span>   => <span class="s">'❌ AppointCare: तपाईंको :service अपोइन्टमेन्ट रद्द भयो।'</span>,
+    <span class="s">'rescheduled'</span> => <span class="s">'🔄 AppointCare: :date मा पुनः तालिका गरियो।'</span>,
+];
+</pre>
+</div>
+
+<h2>Language detection in Notification listener</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Notification/App/Listeners/SendAppointmentNotification.php — updated</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">private function</span> <span class="f">getSmsText</span>(Appointment $apt): ?string
+{
+    <span class="c">// Detect language from phone prefix</span>
+    $locale = str_starts_with($apt->customer_phone, <span class="s">'+977'</span>) ? <span class="s">'ne'</span> : <span class="s">'en'</span>;
+    app()->setLocale($locale);
+
+    $date = $apt->confirmed_datetime?->translatedFormat(<span class="s">'M j \a\t g:i A'</span>);
+
+    <span class="k">return</span> <span class="k">match</span> ($apt->status) {
+        <span class="s">'confirmed'</span>   => __(<span class="s">'appointment::sms.confirmed'</span>,   [<span class="s">'service'</span> => $apt->service_type, <span class="s">'date'</span> => $date]),
+        <span class="s">'cancelled'</span>   => __(<span class="s">'appointment::sms.cancelled'</span>,   [<span class="s">'service'</span> => $apt->service_type]),
+        <span class="s">'rescheduled'</span> => __(<span class="s">'appointment::sms.rescheduled'</span>, [<span class="s">'date'</span> => $date]),
+        <span class="k">default</span>       => <span class="k">null</span>,
+    };
+}
+</pre>
+</div>
+
+<h2>AI system prompt localisation</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/AICall/App/Services/OpenAIRealtimeService.php — update instructions</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">private function</span> <span class="f">buildSessionConfig</span>(Appointment $appointment): array
+{
+    <span class="c">// Tell OpenAI to speak the customer's language</span>
+    $langHint = str_starts_with($appointment->customer_phone, <span class="s">'+977'</span>)
+        ? <span class="s">"The customer is likely Nepali-speaking. Greet in Nepali if they respond in Nepali, "</span>
+          . <span class="s">"otherwise continue in English."</span>
+        : <span class="s">"Speak in English."</span>;
+
+    $instructions = config(<span class="s">'aicall.system_prompt'</span>) . <span class="s">"\\n\\n"</span> . $langHint
+        . <span class="s">"\\n\\nCustomer: {$appointment->customer_name}"</span>
+        . <span class="s">"\\nService: {$appointment->service_type}"</span>
+        . <span class="s">"\\nTime: "</span> . $appointment->preferred_datetime->format(<span class="s">'D M j \\a\\t g:i A'</span>);
+    <span class="c">// ... rest of config</span>
+}
+</pre>
+</div>
+`},
+
+// ═══════════════════════════════════════ 23 API DOCS
+{id:'api-docs', html:`
+<div class="page-label">23 · API Reference</div>
+<h1>API Reference</h1>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th>Method</th><th>Endpoint</th><th>Auth</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><span class="badge blue">POST</span></td><td><code>/api/appointments</code></td><td>Public</td><td>Customer submits appointment form</td></tr>
+<tr><td><span class="badge green">GET</span></td><td><code>/api/admin/appointments</code></td><td>Sanctum</td><td>List appointments (paginated, filterable)</td></tr>
+<tr><td><span class="badge amber">PATCH</span></td><td><code>/api/admin/appointments/{id}/status</code></td><td>Sanctum</td><td>Manually update appointment status</td></tr>
+<tr><td><span class="badge blue">POST</span></td><td><code>/api/admin/appointments/{id}/retry-call</code></td><td>Sanctum</td><td>Trigger manual call retry</td></tr>
+<tr><td><span class="badge green">GET</span></td><td><code>/api/admin/dashboard/stats</code></td><td>Sanctum</td><td>Status counts for dashboard</td></tr>
+<tr><td><span class="badge blue">POST</span></td><td><code>/twilio/voice</code></td><td>Twilio sig</td><td>Twilio calls this when customer answers</td></tr>
+<tr><td><span class="badge blue">POST</span></td><td><code>/twilio/status</code></td><td>Twilio sig</td><td>Twilio call status callbacks</td></tr>
+<tr><td>WS</td><td><code>wss://domain/ws/aicall/{id}</code></td><td>Internal</td><td>Twilio media stream ↔ OpenAI bridge</td></tr>
+<tr><td><span class="badge blue">POST</span></td><td><code>/api/auth/login</code></td><td>Public</td><td>Admin login, returns Sanctum token</td></tr>
+<tr><td><span class="badge blue">POST</span></td><td><code>/api/auth/logout</code></td><td>Sanctum</td><td>Revoke current token</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>POST /api/appointments — request body</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Request</span><span class="code-lang">json</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre>{
+  "customer_name":      "Ankur Dawadi",
+  "customer_phone":     "+9779841234567",
+  "customer_email":     "ankur@example.com",
+  "service_type":       "Dental Cleaning",
+  "preferred_datetime": "2026-06-15 10:00:00",
+  "notes":              "First visit"
+}
+</pre>
+</div>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Response 201</span><span class="code-lang">json</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre>{
+  "success": true,
+  "message": "Appointment submitted! You will receive a call shortly.",
+  "data": {
+    "id": 42,
+    "status": "pending"
+  }
+}
+</pre>
+</div>
+
+<h2>GET /api/admin/appointments — query params</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Param</th><th>Type</th><th>Example</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><code>status</code></td><td>string</td><td><code>confirmed</code></td><td>Filter by status</td></tr>
+<tr><td><code>date</code></td><td>date</td><td><code>2026-06-15</code></td><td>Filter by preferred date</td></tr>
+<tr><td><code>page</code></td><td>int</td><td><code>2</code></td><td>Pagination page number</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>Appointment status flow</h2>
+<div class="flow">
+  <div class="flow-box"><span class="status-pill s-pending">pending</span></div>
+  <div class="flow-arr">→</div>
+  <div class="flow-box"><span class="status-pill s-calling">calling</span></div>
+  <div class="flow-arr">→</div>
+  <div class="flow-box"><span class="status-pill s-confirmed">confirmed</span><br><small style="color:var(--dim)">or</small><br><span class="status-pill s-cancelled">cancelled</span><br><small style="color:var(--dim)">or</small><br><span class="status-pill s-rescheduled">rescheduled</span></div>
+  <div class="flow-arr">|</div>
+  <div class="flow-box"><span class="status-pill s-no_answer">no_answer</span></div>
+</div>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>Status</th><th>Meaning</th><th>Next action</th></tr></thead>
+<tbody>
+<tr><td><span class="status-pill s-pending">pending</span></td><td>Form submitted, not yet called</td><td>Scheduler picks up and dispatches call job</td></tr>
+<tr><td><span class="status-pill s-calling">calling</span></td><td>Twilio call in progress</td><td>AI conversation ongoing</td></tr>
+<tr><td><span class="status-pill s-confirmed">confirmed</span></td><td>Customer confirmed via AI</td><td>SMS + email sent</td></tr>
+<tr><td><span class="status-pill s-cancelled">cancelled</span></td><td>Customer cancelled via AI</td><td>SMS + email sent</td></tr>
+<tr><td><span class="status-pill s-rescheduled">rescheduled</span></td><td>New time agreed via AI</td><td>SMS + email sent with new time</td></tr>
+<tr><td><span class="status-pill s-no_answer">no_answer</span></td><td>3 call attempts unanswered</td><td>Admin review, manual follow-up</td></tr>
+<tr><td><span class="status-pill s-failed">failed</span></td><td>Technical error</td><td>Admin review, retry manually</td></tr>
+</tbody>
+</table>
+</div>
+`},
+
+// ═══════════════════════════════════════ 24 ENV REF
+{id:'env-ref', html:`
+<div class="page-label">24 · .env Reference</div>
+<h1>Full .env Reference</h1>
+
+<div class="table-wrap">
+<table class="env-table">
+<thead><tr><th>Variable</th><th>Required</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td>APP_NAME</td><td><span class="badge green">Yes</span></td><td>Application name displayed in emails</td></tr>
+<tr><td>APP_URL</td><td><span class="badge green">Yes</span></td><td>Public HTTPS URL — must match Twilio webhook base</td></tr>
+<tr><td>APP_KEY</td><td><span class="badge green">Yes</span></td><td>32-char app encryption key — run <code>php artisan key:generate</code></td></tr>
+<tr><td>DB_CONNECTION</td><td><span class="badge green">Yes</span></td><td>Database driver: <code>mysql</code>, <code>pgsql</code>, <code>sqlite</code></td></tr>
+<tr><td>DB_DATABASE</td><td><span class="badge green">Yes</span></td><td>Database name</td></tr>
+<tr><td>QUEUE_CONNECTION</td><td><span class="badge green">Yes</span></td><td>Must be <code>redis</code> for production queues</td></tr>
+<tr><td>REDIS_HOST</td><td><span class="badge green">Yes</span></td><td>Redis server host (default: <code>127.0.0.1</code>)</td></tr>
+<tr><td>TWILIO_SID</td><td><span class="badge green">Yes</span></td><td>Twilio Account SID (starts with AC)</td></tr>
+<tr><td>TWILIO_AUTH_TOKEN</td><td><span class="badge green">Yes</span></td><td>Twilio Auth Token from console</td></tr>
+<tr><td>TWILIO_PHONE_NUMBER</td><td><span class="badge green">Yes</span></td><td>Your Twilio phone number in E.164 format</td></tr>
+<tr><td>TWILIO_WEBHOOK_BASE_URL</td><td><span class="badge green">Yes</span></td><td>Base URL for Twilio webhooks — same as APP_URL</td></tr>
+<tr><td>OPENAI_API_KEY</td><td><span class="badge green">Yes</span></td><td>OpenAI API key with Realtime API access</td></tr>
+<tr><td>OPENAI_REALTIME_MODEL</td><td><span class="badge amber">Opt</span></td><td>Defaults to <code>gpt-4o-realtime-preview</code></td></tr>
+<tr><td>REVERB_APP_ID</td><td><span class="badge green">Yes</span></td><td>Laravel Reverb app ID for broadcasting</td></tr>
+<tr><td>REVERB_APP_KEY</td><td><span class="badge green">Yes</span></td><td>Reverb app key (used by frontend Echo)</td></tr>
+<tr><td>REVERB_APP_SECRET</td><td><span class="badge green">Yes</span></td><td>Reverb app secret</td></tr>
+<tr><td>REVERB_HOST</td><td><span class="badge green">Yes</span></td><td>Reverb WebSocket host (e.g. <code>localhost</code>)</td></tr>
+<tr><td>REVERB_PORT</td><td><span class="badge green">Yes</span></td><td>Default <code>8080</code></td></tr>
+<tr><td>WS_PORT</td><td><span class="badge amber">Opt</span></td><td>AICall WebSocket server port (default <code>8090</code>)</td></tr>
+<tr><td>BROADCAST_DRIVER</td><td><span class="badge green">Yes</span></td><td>Must be <code>reverb</code></td></tr>
+<tr><td>MAIL_MAILER</td><td><span class="badge amber">Opt</span></td><td><code>smtp</code> | <code>ses</code> | <code>mailgun</code> | <code>log</code> (for dev)</td></tr>
+<tr><td>MAIL_FROM_ADDRESS</td><td><span class="badge amber">Opt</span></td><td>From address for status emails</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="callout warn"><div class="callout-icon">⚠</div><div>Never commit your real <code>.env</code> to Git. Add it to <code>.gitignore</code>. Provide a <code>.env.example</code> with all keys but no values for the team.</div></div>
+
+<h2>Generate .env.example</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">terminal</span><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="c"># Copy current .env to .env.example and clear all values</span>
+sed 's/=.*/=/' .env > .env.example
+git add .env.example</pre>
+</div>
+`},
+
+// ═══════════════════════════════════════ 25 FAQ
+{id:'faq', html:`
+<div class="page-label">25 · FAQ</div>
+<h1>FAQ & Troubleshooting</h1>
+
+<h2>Q: Why is the AI not speaking when the call connects?</h2>
+<p>The OpenAI Realtime API uses server-side VAD (voice activity detection). By default it waits for the customer to speak first. To make the AI greet the customer immediately after connect, send a <code>response.create</code> event right after the session is configured:</p>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">AICallHandler.php — add to handleStart()</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">private function</span> <span class="f">handleStart</span>(int $resourceId, array $data): void
+{
+    $this->sessions[$resourceId]['stream_sid'] = $data['streamSid'] ?? null;
+
+    <span class="c">// Trigger AI to greet the customer immediately</span>
+    $this->sessions[$resourceId]['openai']->send(json_encode([
+        'type' => 'response.create',
+        'response' => [
+            'modalities'   => ['audio', 'text'],
+            'instructions' => 'Greet the customer warmly and ask them to confirm their appointment.',
+        ],
+    ]));
+}
+</pre>
+</div>
+
+<h2>Q: How do I handle the Twilio media stream on HTTPS/WSS in production?</h2>
+<p>Twilio requires the media stream URL to use <code>wss://</code> (secure WebSocket). Your Nginx must proxy <code>/ws/</code> to the Ratchet server on port 8090, and your SSL cert must be valid. The Nginx config in Section 15 already covers this. Make sure <code>proxy_read_timeout</code> is set to at least <code>3600s</code> — calls can be long.</p>
+
+<h2>Q: Module migrations aren't running</h2>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">terminal</span><span class="code-lang">bash</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="c"># Run migrations for all enabled modules</span>
+php artisan module:migrate
+
+<span class="c"># Or a specific module</span>
+php artisan module:migrate Appointment --force
+
+<span class="c"># Check migration status</span>
+php artisan migrate:status</pre>
+</div>
+
+<h2>Q: Queue job runs but no call is made</h2>
+<p>Check in order: (1) Is Redis running? — <code>redis-cli ping</code>. (2) Is the queue worker running on the <code>calls</code> queue? — <code>php artisan queue:work redis --queue=calls</code>. (3) Is the appointment status still <code>pending</code>? The job guards against calling non-pending appointments. (4) Check <code>storage/logs/ai-calls.log</code> for errors.</p>
+
+<h2>Q: OpenAI function call fires but appointment doesn't update</h2>
+<p>The <code>FunctionCallHandler</code> runs inside the Ratchet WebSocket process, which does not boot the full Laravel app by default. Make sure the WebSocket server is started via <code>php artisan aicall:websocket-server</code> (the Artisan command), which does boot Laravel fully — giving access to Eloquent, config, and services.</p>
+
+<h2>Q: How do I add a new service type?</h2>
+<p>Service types are free-text strings — no enum. Just pass any string in the form. If you want a dropdown, add a <code>service_types</code> config array and validate with <code>Rule::in()</code>:</p>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">Modules/Appointment/config/appointment.php</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="k">return</span> [
+    <span class="s">'service_types'</span> => [
+        <span class="s">'General Consultation'</span>, <span class="s">'Dental Cleaning'</span>, <span class="s">'Eye Checkup'</span>,
+        <span class="s">'Blood Test'</span>,           <span class="s">'Physiotherapy'</span>,    <span class="s">'Cardiology'</span>,
+        <span class="s">'Dermatology'</span>,          <span class="s">'Pediatrics'</span>,
+    ],
+];
+</pre>
+</div>
+<div class="code-block">
+<div class="code-header"><span class="code-filename">StoreAppointmentRequest — updated rule</span><span class="code-lang">php</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+<pre><span class="s">'service_type'</span> => [<span class="s">'required'</span>, <span class="s">'string'</span>, Rule::in(config(<span class="s">'appointment.service_types'</span>))],
+</pre>
+</div>
+
+<h2>Q: How do I test the full call flow locally without a real phone?</h2>
+<div class="steps">
+  <div class="step"><div class="step-n">1</div><div class="step-body"><div class="step-title">Start ngrok</div><div class="step-desc"><code>ngrok http 8000</code> — update <code>TWILIO_WEBHOOK_BASE_URL</code> and <code>APP_URL</code> in .env.</div></div></div>
+  <div class="step"><div class="step-n">2</div><div class="step-body"><div class="step-title">Start the WebSocket server</div><div class="step-desc"><code>php artisan aicall:websocket-server --port=8090</code> in a separate terminal.</div></div></div>
+  <div class="step"><div class="step-n">3</div><div class="step-body"><div class="step-title">Start queue worker</div><div class="step-desc"><code>php artisan queue:work redis --queue=calls</code> in a separate terminal.</div></div></div>
+  <div class="step"><div class="step-n">4</div><div class="step-body"><div class="step-title">Submit the form</div><div class="step-desc">POST to <code>/api/appointments</code> with a real phone number you control. Wait ~1 minute for the call.</div></div></div>
+  <div class="step"><div class="step-n">5</div><div class="step-body"><div class="step-title">Check logs</div><div class="step-desc"><code>tail -f storage/logs/ai-calls.log storage/logs/twilio.log</code> — you'll see every event in real-time.</div></div></div>
+</div>
+
+<div class="section-divider"></div>
+<div class="callout success"><div class="callout-icon">🎉</div><div><strong>That's the complete AppointCare system.</strong> You now have a fully modular nWidart Laravel 13 project with Twilio outbound calling, OpenAI Realtime voice conversations, automatic status management, real-time admin dashboard, multi-tenancy, security hardening, rate limiting, internationalisation, full test coverage, and production deployment.</div></div>
+`},
+
+  ];
+
+  sections.forEach(function(s){
+    var div = document.createElement('div');
+    div.className = 'section';
+    div.id = 's-' + s.id;
+    div.innerHTML = s.html;
+    ca.appendChild(div);
+  });
+});
+</script>

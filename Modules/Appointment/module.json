@@ -1,0 +1,5 @@
+{
+    "name": "Appointment",
+    "description": "Appointment module for bookings, rescheduling and cancellations",
+    "version": "0.1.0"
+}
