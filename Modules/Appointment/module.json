@@ -1,5 +1,15 @@
 {
     "name": "Appointment",
-    "description": "Appointment module for bookings, rescheduling and cancellations",
-    "version": "0.1.0"
+    "alias": "appointment",
+    "description": "Appointment module for bookings and AI-powered calls",
+    "keywords": ["appointment", "booking", "calendar"],
+    "version": "1.0.0",
+    "active": 1,
+    "order": 1,
+    "providers": [
+        "Modules\\Appointment\\Providers\\AppointmentServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
 }

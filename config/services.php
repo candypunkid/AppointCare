@@ -1,18 +1,6 @@
-<?php
+﻿<?php
 
 return [
-
-    /*
-    |--------------------------------------------------------------------------
-    | Third Party Services
-    |--------------------------------------------------------------------------
-    |
-    | This file is for storing the credentials for third party services such
-    | as Mailgun, Postmark, AWS and more. This file provides the de facto
-    | location for this type of information, allowing packages to have
-    | a conventional file to locate the various service credentials.
-    |
-    */
 
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
@@ -36,9 +24,10 @@ return [
     ],
 
     'twilio' => [
-        'account_sid' => env('TWILIO_ACCOUNT_SID'),
+        'account_sid' => env('TWILIO_SID'),
         'auth_token' => env('TWILIO_AUTH_TOKEN'),
         'phone_number' => env('TWILIO_PHONE_NUMBER'),
+        'webhook_base' => env('TWILIO_WEBHOOK_BASE_URL', 'https://appointcare.local'),
     ],
 
     'openai' => [

@@ -1,0 +1,10 @@
+{
+    "name": "Twilio",
+    "alias": "twilio",
+    "description": "Twilio integration for voice calls and webhooks",
+    "keywords": ["twilio", "voip", "calls"],
+    "version": "1.0.0",
+    "active": 1,
+    "order": 2,
+    "providers": ["Modules\\Twilio\\Providers\\TwilioServiceProvider"]
+}

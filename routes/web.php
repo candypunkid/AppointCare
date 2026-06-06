@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AiController;
+
 
 // Main app routes
 Route::get('/', function () {
@@ -27,7 +29,6 @@ Route::get('/', function () {
 // Module routes are automatically registered by Nwidart Modules
 // User module routes are loaded from Modules/User/routes/web.php
 
-use App\Http\Controllers\AiController;
 
 // AI endpoint for frontpage assistant
 Route::post('/ai/respond', [AiController::class, 'respond'])->name('ai.respond')->middleware('throttle:10,1');

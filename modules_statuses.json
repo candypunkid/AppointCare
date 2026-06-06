@@ -1,4 +1,7 @@
 {
     "User": true,
-    "Tenant": true
+    "Tenant": true,
+    "Twilio": true,
+    "AICall": true,
+    "Notification": true
 }

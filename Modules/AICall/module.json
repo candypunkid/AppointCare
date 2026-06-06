@@ -1,0 +1,10 @@
+{
+    "name": "AICall",
+    "alias": "aicall",
+    "description": "AI-powered voice call management with OpenAI Realtime API",
+    "keywords": ["ai", "openai", "realtime", "voice"],
+    "version": "1.0.0",
+    "active": 1,
+    "order": 3,
+    "providers": ["Modules\\AICall\\Providers\\AICallServiceProvider"]
+}

@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/aicall",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\AICall\\": "app/",
+            "Modules\\AICall\\Database\\Factories\\": "database/factories/",
+            "Modules\\AICall\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\AICall\\Tests\\": "tests/"
+        }
+    }
+}

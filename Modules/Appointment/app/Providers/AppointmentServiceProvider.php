@@ -2,12 +2,16 @@
 
 namespace Modules\Appointment\Providers;
 
-use Nwidart\Modules\Support\ModuleServiceProvider;
+use Illuminate\Support\ServiceProvider;
+use Modules\Appointment\Models\Appointment;
+use Modules\Appointment\Observers\AppointmentObserver;
 
-class AppointmentServiceProvider extends ModuleServiceProvider
+class AppointmentServiceProvider extends ServiceProvider
 {
-    protected string $name = 'Appointment';
-    protected string $nameLower = 'appointment';
+    public function register(): void {}
 
-    protected array $providers = [];
+    public function boot(): void
+    {
+        Appointment::observe(AppointmentObserver::class);
+    }
 }

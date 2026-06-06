@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 return [
 
@@ -73,6 +73,15 @@ return [
             'after_commit' => false,
         ],
 
+        'calls' => [
+            'driver' => 'redis',
+            'connection' => env('REDIS_QUEUE_CONNECTION', 'default'),
+            'queue' => 'calls',
+            'retry_after' => (int) env('REDIS_QUEUE_RETRY_AFTER', 90),
+            'block_for' => null,
+            'after_commit' => false,
+        ],
+
         'deferred' => [
             'driver' => 'deferred',
         ],
@@ -127,3 +136,4 @@ return [
     ],
 
 ];
+

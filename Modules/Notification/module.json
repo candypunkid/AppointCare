@@ -1,0 +1,12 @@
+{
+    "name": "Notification",
+    "alias": "notification",
+    "description": "Notification system for appointment status updates",
+    "keywords": ["notification", "email", "sms"],
+    "version": "1.0.0",
+    "active": 1,
+    "order": 4,
+    "providers": [
+        "Modules\\Notification\\Providers\\NotificationServiceProvider"
+    ]
+}
