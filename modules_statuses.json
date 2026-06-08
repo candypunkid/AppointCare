@@ -3,5 +3,6 @@
     "Tenant": true,
     "Twilio": true,
     "AICall": true,
-    "Notification": true
+    "Notification": true,
+    "Settings": true
 }
