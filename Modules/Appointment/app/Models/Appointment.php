@@ -16,12 +16,15 @@ class Appointment extends Model
         'customer_phone',
         'appointment_date',
         'description',
-        'status',
+        'status', // pending, calling, confirmed, cancelled, rescheduled, no_answer, failed
         'twilio_call_sid',
         'call_transcript',
         'ai_summary',
         'appointment_type',
         'duration_minutes',
+        'call_attempts',
+        'last_called_at',
+        'tenant_id',
         'notes',
     ];
 
@@ -29,6 +32,7 @@ class Appointment extends Model
         'appointment_date' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'last_called_at' => 'datetime',
     ];
 
     protected $dispatchesEvents = [
@@ -65,6 +69,11 @@ class Appointment extends Model
         return $this->status === 'failed';
     }
 
+    public function isResolved(): bool
+    {
+        return in_array($this->status, ['confirmed', 'cancelled', 'rescheduled']);
+    }
+
     public function markAsConfirmed(): void
     {
         $this->update(['status' => 'confirmed']);
@@ -82,5 +91,24 @@ class Appointment extends Model
     public function markAsFailed(): void
     {
         $this->update(['status' => 'failed']);
+    }
+
+    public function confirm(string $notes = null): void
+    {
+        $this->update(['status' => 'confirmed', 'notes' => $notes]);
+    }
+
+    public function cancel(string $reason = null): void
+    {
+        $this->update(['status' => 'cancelled', 'notes' => $reason]);
+    }
+
+    public function reschedule(string $newDateTime, string $notes = null): void
+    {
+        $this->update([
+            'status' => 'rescheduled',
+            'appointment_date' => $newDateTime,
+            'notes' => $notes
+        ]);
     }
 }

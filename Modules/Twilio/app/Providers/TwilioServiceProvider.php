@@ -14,5 +14,8 @@ class TwilioServiceProvider extends ServiceProvider
         });
     }
 
-    public function boot(): void {}
+    public function boot(): void
+    {
+        $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
+    }
 }

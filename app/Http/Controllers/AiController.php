@@ -9,6 +9,7 @@ class AiController extends Controller
 {
     public function respond(Request $request, AIService $ai)
     {
+        set_time_limit(180);
         $request->validate(['prompt' => 'required|string|max:2000']);
 
         if (! $ai->isAvailable()) {
@@ -19,6 +20,7 @@ class AiController extends Controller
         try {
             $answer = $ai->chat($request->input('prompt'));
         } catch (\Exception $e) {
+            dd($e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
         }
 

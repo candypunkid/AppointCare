@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 use Modules\Appointment\Http\Controllers\AppointmentController;
 use Illuminate\Support\Facades\Route;

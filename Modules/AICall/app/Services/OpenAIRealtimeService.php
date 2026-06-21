@@ -10,29 +10,58 @@ use Exception;
 class OpenAIRealtimeService
 {
     private ?WsClient $client = null;
-    private array $sessionConfig;
 
-    public function __construct()
+    /**
+     * Connect to OpenAI Realtime API and immediately send session config.
+     */
+    public function createClient(Appointment $appointment): WsClient
     {
-        $this->sessionConfig = [
+        $wsUrl = "wss://api.openai.com/v1/realtime?model=" . config('aicall.openai.realtime_model', 'gpt-4o-realtime-preview');
+
+        $this->client = new WsClient($wsUrl, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . config('aicall.openai.api_key'),
+                'OpenAI-Beta' => 'realtime=v1',
+            ],
+            'timeout' => 15
+        ]);
+
+        // Immediately configure session
+        $this->client->send(json_encode($this->buildSessionConfig($appointment)));
+
+        return $this->client;
+    }
+
+    /**
+     * Build the session configuration specifically for Twilio G.711 compatibility.
+     */
+    private function buildSessionConfig(Appointment $appointment): array
+    {
+        $instructions = $this->getSystemInstructions() .
+            "\nYou are speaking with " . $appointment->customer_name .
+            " regarding their " . $appointment->appointment_type . " on " .
+            $appointment->appointment_date->format('F j, Y at g:i A') . ".";
+
+        return [
             'type' => 'session.update',
             'session' => [
-                'modalities' => ['text', 'audio'],
-                'instructions' => $this->getSystemInstructions(),
-                'voice' => 'alloy',
-                'input_audio_format' => config('aicall.openai.input_audio_format'),
-                'output_audio_format' => config('aicall.openai.output_audio_format'),
+                'modalities' => ['audio', 'text'],
+                'instructions' => $instructions,
+                'voice' => config('aicall.voice', 'alloy'),
+                'input_audio_format' => 'g711_ulaw',
+                'output_audio_format' => 'g711_ulaw',
                 'input_audio_transcription' => [
                     'model' => 'whisper-1',
                 ],
                 'turn_detection' => [
                     'type' => 'server_vad',
                     'threshold' => 0.5,
-                    'prefix_padding_ms' => 300,
-                    'silence_duration_ms' => 500,
+                    'prefix_padding_ms' => 200,
+                    'silence_duration_ms' => 800,
                 ],
+                'tool_choice' => 'auto',
+                'tools' => $this->getTools(),
                 'temperature' => 0.8,
-                'max_response_output_tokens' => 4096,
             ],
         ];
     }
@@ -55,59 +84,46 @@ Always be helpful and courteous. Keep responses brief (under 100 words per respo
 INSTRUCTIONS;
     }
 
-    /**
-     * Connect to OpenAI Realtime API and start the session
-     */
-    public function connect(Appointment $appointment): void
+    public function getTools(): array
     {
-        try {
-            $wsUrl = config('aicall.openai.websocket_url') . '?model=' . config('aicall.openai.realtime_model');
-
-            $this->client = new WsClient($wsUrl, [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . config('aicall.openai.api_key'),
-                    'OpenAI-Beta' => 'realtime=v1',
-                ],
-            ]);
-
-            Log::info("Connected to OpenAI Realtime API for appointment {$appointment->id}");
-
-            // Send session configuration
-            $this->client->send(json_encode($this->sessionConfig));
-
-            // Send initial greeting
-            $this->sendMessage("Hello! I'm calling to confirm your appointment on " . $appointment->appointment_date->format('F j, Y \a\t g:i A') . ". Is this a good time to talk?");
-        } catch (Exception $e) {
-            Log::error("Failed to connect to OpenAI Realtime API: " . $e->getMessage());
-            throw $e;
-        }
-    }
-
-    /**
-     * Send text message to AI
-     */
-    public function sendMessage(string $message): void
-    {
-        if (!$this->client) {
-            throw new Exception('WebSocket client not connected');
-        }
-
-        $event = [
-            'type' => 'conversation.item.create',
-            'item' => [
-                'type' => 'message',
-                'role' => 'user',
-                'content' => [
-                    [
-                        'type' => 'text',
-                        'text' => $message,
+        return [
+            [
+                'type' => 'function',
+                'name' => 'confirm_appointment',
+                'description' => 'Confirm the appointment as scheduled.',
+                'parameters' => ['type' => 'object', 'properties' => (object)[]]
+            ],
+            [
+                'type' => 'function',
+                'name' => 'cancel_appointment',
+                'description' => 'Cancel the appointment.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'reason' => ['type' => 'string', 'description' => 'The reason for cancellation']
+                    ]
+                ]
+            ],
+            [
+                'type' => 'function',
+                'name' => 'reschedule_appointment',
+                'description' => 'Reschedule the appointment to a new date and time.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'new_datetime' => ['type' => 'string', 'description' => 'ISO 8601 formatted date string'],
+                        'reason' => ['type' => 'string']
                     ],
+                    'required' => ['new_datetime']
                 ],
             ],
+            [
+                'type' => 'function',
+                'name' => 'end_call',
+                'description' => 'End the phone call.',
+                'parameters' => ['type' => 'object', 'properties' => (object)[]]
+            ]
         ];
-
-        $this->client->send(json_encode($event));
-        Log::debug("Sent message to OpenAI: " . substr($message, 0, 100));
     }
 
     /**

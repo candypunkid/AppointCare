@@ -20,11 +20,10 @@ class TwilioWebhookController extends Controller
      */
     public function handleStream(Request $request): Response
     {
-        // This endpoint receives Twilio's streaming connection request
-        // Return TwiML for audio streaming setup
+        $appointmentId = $request->query('appointment_id');
+        $tenantSlug = $request->header('X-Tenant-Slug') ?? 'default';
 
-        $appointmentId = $request->input('appointment_id');
-        $twiML = $this->twilioService->generateStreamTwiML($appointmentId);
+        $twiML = $this->twilioService->generateStreamTwiML($appointmentId, $tenantSlug);
 
         return response($twiML, 200)
             ->header('Content-Type', 'application/xml');

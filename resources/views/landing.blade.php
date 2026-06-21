@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="csrf-token" content="">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>AppointCare — Smart Appointment Management SaaS</title>
   <meta name="description" content="AppointCare is a smart solution for rapidly building appointment management SaaS applications. Effortlessly streamline your schedule — simple, effective, stress-free." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1048,18 +1048,45 @@
       return res.json();
     }
 
-    document.getElementById('aiAsk').addEventListener('click', async () => {
-      const prompt = document.getElementById('aiPrompt').value.trim();
-      if (!prompt) return;
-      document.getElementById('aiAnswer').textContent = 'Thinking…';
-      try {
-        const result = await postJSON('/ai/respond', { prompt });
-        document.getElementById('aiAnswer').textContent = result.answer || result.error || 'No response';
-      } catch {
-        document.getElementById('aiAnswer').textContent = 'Could not reach server.';
-      }
-    });
+document.getElementById('aiAsk').addEventListener('click', async () => {
+    const prompt = document.getElementById('aiPrompt').value.trim();
+    if (!prompt) return;
 
+    const btn = document.getElementById('aiAsk');
+    btn.textContent = 'Thinking…';
+    btn.disabled = true;
+    document.getElementById('aiAnswer').textContent = '⏳ Generating response, please wait…';
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 120000); // 120s
+
+    try {
+        const result = await fetch('/ai/respond', {
+            method: 'POST',
+            signal: controller.signal,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ prompt })
+        });
+        clearTimeout(timeout);
+
+        // Show raw text first for debugging
+        const text = await result.text();
+        console.log('Raw response:', text);
+
+        const data = JSON.parse(text);
+        document.getElementById('aiAnswer').textContent = data.answer || data.error || 'No response';
+    } catch (e) {
+        clearTimeout(timeout);
+        console.error('Fetch error:', e);
+        document.getElementById('aiAnswer').textContent = 'Error: ' + e.message;
+    } finally {
+        btn.textContent = 'Ask';
+        btn.disabled = false;
+    }
+});
     document.getElementById('aiClear').addEventListener('click', () => {
       document.getElementById('aiPrompt').value = '';
       document.getElementById('aiAnswer').textContent = '';

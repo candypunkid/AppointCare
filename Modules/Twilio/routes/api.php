@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 use Modules\Twilio\Http\Controllers\TwilioWebhookController;
 use Illuminate\Support\Facades\Route;

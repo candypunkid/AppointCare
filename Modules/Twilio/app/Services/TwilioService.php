@@ -4,69 +4,120 @@ namespace Modules\Twilio\Services;
 
 use Twilio\Rest\Client;
 use Twilio\TwiML\VoiceResponse;
-use Modules\Appointment\App\Models\Appointment;
+use Modules\Appointment\Models\Appointment;
 use Illuminate\Support\Facades\Log;
 
 class TwilioService
 {
-    private Client $twilio;
+    private ?Client $twilio = null;
 
-    public function __construct()
+    /**
+     * Lazy-load the Twilio Client using tenant-aware credentials if available.
+     */
+    private function getClient(Appointment $appointment = null): Client
     {
-        $this->twilio = new Client(
-            config('services.twilio.account_sid'),
-            config('services.twilio.auth_token')
-        );
+        if ($this->twilio) {
+            return $this->twilio;
+        }
+
+        // Fallback logic for multi-tenancy as per Master Context
+        $sid = config('services.twilio.account_sid');
+        $token = config('services.twilio.auth_token');
+
+        return $this->twilio = new Client($sid, $token);
     }
 
     /**
-     * Initiate an outbound AI call
+     * Initiate an outbound AI call (Prompt 04 implementation)
      */
-    public function initiateCall(string $phoneNumber, int $appointmentId): string
+    public function callCustomer(Appointment $appointment): string
     {
         try {
-            $webhookUrl = config('services.twilio.webhook_base') . '/twilio/webhook/stream';
+            $webhookUrl = config('services.twilio.webhook_base') . '/twilio/webhook/voice?appointment_id=' . $appointment->id;
 
-            $call = $this->twilio->calls->create(
-                $phoneNumber,
+            $call = $this->getClient($appointment)->calls->create(
+                $appointment->customer_phone,
                 config('services.twilio.phone_number'),
                 [
                     'url' => $webhookUrl,
                     'method' => 'POST',
-                    'statusCallback' => config('services.twilio.webhook_base') . '/twilio/webhook/status',
+                    'statusCallback' => config('services.twilio.webhook_base') . '/twilio/webhook/status?appointment_id=' . $appointment->id,
                     'statusCallbackMethod' => 'POST',
+                    'machineDetection' => 'Enable',
                     'record' => false,
                     'statusCallbackEvents' => ['initiated', 'ringing', 'answered', 'completed'],
                 ]
             );
 
-            Log::info("Twilio call initiated", [
+            $appointment->update([
+                'twilio_call_sid' => $call->sid,
+                'status' => 'calling',
+                'call_attempts' => $appointment->call_attempts + 1,
+                'last_called_at' => now(),
+            ]);
+
+            Log::channel('twilio')->info("Outbound call initiated", [
                 'call_sid' => $call->sid,
-                'phone_number' => $phoneNumber,
-                'appointment_id' => $appointmentId,
+                'appointment_id' => $appointment->id,
             ]);
 
             return $call->sid;
         } catch (\Exception $e) {
-            Log::error("Failed to initiate Twilio call: " . $e->getMessage());
+            Log::channel('twilio')->error("Failed to initiate call: " . $e->getMessage());
             throw $e;
         }
     }
 
     /**
-     * Generate TwiML for streaming audio to OpenAI
+     * Generate TwiML for the voice stream (Prompt 04 requirement)
      */
-    public function generateStreamTwiML(int $appointmentId): string
+    public function buildVoiceTwiML(Appointment $appointment): string
     {
         $response = new VoiceResponse();
 
+        $greeting = "Hello " . $appointment->customer_name .
+            ", I'm calling to confirm your " . $appointment->appointment_type .
+            " appointment on " . $appointment->appointment_date->format('F jS') . ".";
+
+        $response->say($greeting, ['voice' => 'Polly.Joanna']);
+
         $connect = $response->connect();
         $stream = $connect->stream([
-            'url' => 'wss://openai-realtime-stream.example.com/stream',
-            'name' => "appointment-{$appointmentId}",
+            'url' => 'wss://' . request()->getHost() . '/ws/aicall/' . $appointment->id,
+            'name' => 'openai-stream',
         ]);
+        $stream->parameter(['name' => 'appointmentId', 'value' => (string)$appointment->id]);
 
         return $response->asXML();
+    }
+
+    /**
+     * Handle voicemail detection
+     */
+    public function handleVoicemail(Appointment $appointment): string
+    {
+        $appointment->update(['status' => 'no_answer', 'notes' => 'Voicemail detected']);
+
+        $response = new VoiceResponse();
+        $response->say("Hello, this is an automated message to confirm your appointment. We will try to reach you again later. Goodbye.");
+        $response->hangup();
+
+        return $response->asXML();
+    }
+
+    /**
+     * Send an SMS via Twilio
+     */
+    public function sendSms(string $to, string $message): void
+    {
+        try {
+            $this->getClient()->messages->create($to, [
+                'from' => config('services.twilio.phone_number'),
+                'body' => $message
+            ]);
+        } catch (\Exception $e) {
+            Log::channel('twilio')->error("SMS Failure: " . $e->getMessage());
+        }
     }
 
     /**
