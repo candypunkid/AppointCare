@@ -30,36 +30,34 @@ class Appointment extends Model
         'metadata' => 'json',
     ];
 
-    /**
-     * Get the tenant for this appointment.
-     */
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
     }
 
-    /**
-     * Get the customer for this appointment.
-     */
     public function customer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'customer_id');
     }
 
-    /**
-     * Get the staff member for this appointment.
-     */
     public function staff(): BelongsTo
     {
         return $this->belongsTo(User::class, 'staff_id');
     }
 
-    /**
-     * Get the AI conversations for this appointment.
-     */
     public function aiConversations(): HasMany
     {
         return $this->hasMany(AIConversation::class);
+    }
+
+    public function callLogs(): HasMany
+    {
+        return $this->hasMany(CallLog::class);
+    }
+
+    public function aiActions(): HasMany
+    {
+        return $this->hasMany(AiAction::class);
     }
 
     /**

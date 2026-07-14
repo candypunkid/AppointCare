@@ -8,21 +8,16 @@ use App\Http\Controllers\AiController;
 Route::get('/', function () {
     $tenant = tenant();
 
-    if ($tenant) {
-        if (auth()->check()) {
-            $user = auth()->user();
-            if ($user->role === 'tenant_admin') {
-                return redirect()->route('tenant.dashboard');
-            }
-            if ($user->role === 'super_admin') {
-                return redirect()->route('admin.dashboard');
-            }
+    if ($tenant && auth()->check()) {
+        $user = auth()->user();
+        if ($user->role === 'tenant_admin') {
+            return redirect()->route('tenant.dashboard');
         }
-
-        return redirect()->route('appointments.book');
+        if ($user->role === 'super_admin') {
+            return redirect()->route('admin.dashboard');
+        }
     }
 
-    // Always show the main landing page for non-tenant hosts, even if the user is logged in.
     return view('landing');
 })->name('home');
 
