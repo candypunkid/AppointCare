@@ -1,13 +1,8 @@
 @php
-    use App\Services\TenantThemeService;
-    $themeService = app(TenantThemeService::class);
-    $currentTenant = $currentTenant ?? null;
-    $theme = $themeService->getTheme($currentTenant);
-    $cssVars = $themeService->getCssVariables($currentTenant);
-    $brandName = $theme['brand_name'] ?? 'AppointCare';
-    $heroTitle = str_replace('{brand}', '<em>' . e($brandName) . '</em>', e($theme['hero_title']));
-    $heroSubtitle = e($theme['hero_subtitle']);
-    $logoPath = $theme['logo_path'];
+    $heroBadge = $theme['hero_badge'] ?? 'Trusted by 95,000+ businesses worldwide';
+    $heroBtnPrimary = $theme['hero_btn_primary'] ?? 'Get Started — Free Trial';
+    $heroBtnSecondary = $theme['hero_btn_secondary'] ?? 'How it works';
+    $brandNameUpper = strtoupper(substr($brandName, 0, 1));
 @endphp
 <!doctype html>
 <html lang="en">
@@ -310,19 +305,19 @@
     <div class="blob blob-2"></div>
     <div class="hero-inner">
       <div>
-        <div class="hero-badge"><span></span> Trusted by 95,000+ businesses worldwide</div>
+        <div class="hero-badge"><span></span> {{ $heroBadge }}</div>
         <h1 class="hero-title">{!! $heroTitle !!}</h1>
         <p class="hero-sub">{{ $heroSubtitle }}</p>
         <div class="hero-ctas">
-          <a href="/register" class="btn-primary">Get Started — Free Trial</a>
-          <a href="#how" class="btn-secondary">How it works</a>
+          <a href="/register" class="btn-primary">{{ $heroBtnPrimary }}</a>
+          <a href="#how" class="btn-secondary">{{ $heroBtnSecondary }}</a>
         </div>
         <div class="trusted-row">
           <div class="trusted-avatars">
-            <div class="avatar-circle" style="background:{{ $theme['primary_color'] }}">J</div>
-            <div class="avatar-circle" style="background:{{ $theme['secondary_color'] }}">A</div>
-            <div class="avatar-circle" style="background:{{ $theme['accent_color'] }}">M</div>
-            <div class="avatar-circle" style="background:#f59e0b">S</div>
+            <div class="avatar-circle" style="background:{{ $theme['primary_color'] }}">{{ $brandNameUpper }}</div>
+            <div class="avatar-circle" style="background:{{ $theme['secondary_color'] }}">U</div>
+            <div class="avatar-circle" style="background:{{ $theme['accent_color'] }}">S</div>
+            <div class="avatar-circle" style="background:#f59e0b">E</div>
             <div class="avatar-circle" style="background:#8b5cf6">R</div>
           </div>
           <span>Join thousands of satisfied users</span>
@@ -368,10 +363,14 @@
   <div class="stats-band">
     <div class="section-inner">
       <div class="stats-grid">
-        <div class="stat-card"><div class="num"><span>98%</span></div><div class="label">Customer Satisfaction</div></div>
-        <div class="stat-card"><div class="num"><span>15M</span></div><div class="label">Subscription Members</div></div>
-        <div class="stat-card"><div class="num"><span>40%</span></div><div class="label">Cost Savings</div></div>
-        <div class="stat-card"><div class="num"><span>69K</span></div><div class="label">Positive Reviews</div></div>
+        @forelse($stats as $stat)
+          <div class="stat-card"><div class="num"><span>{{ $stat->value }}</span></div><div class="label">{{ $stat->label }}</div></div>
+        @empty
+          <div class="stat-card"><div class="num"><span>98%</span></div><div class="label">Customer Satisfaction</div></div>
+          <div class="stat-card"><div class="num"><span>15M</span></div><div class="label">Subscription Members</div></div>
+          <div class="stat-card"><div class="num"><span>40%</span></div><div class="label">Cost Savings</div></div>
+          <div class="stat-card"><div class="num"><span>69K</span></div><div class="label">Positive Reviews</div></div>
+        @endforelse
       </div>
     </div>
   </div>
@@ -384,14 +383,18 @@
         <p class="section-sub">{{ $brandName }} handles scheduling and managing appointments — efficiently and automatically.</p>
       </div>
       <div class="features-grid">
-        <div class="feat-card"><div class="feat-icon">🌐</div><div class="feat-title">Accept Online Bookings</div><div class="feat-desc">Enable hassle-free online bookings through our intuitive, mobile-optimized platform.</div></div>
-        <div class="feat-card"><div class="feat-icon">💬</div><div class="feat-title">SMS & Email Notifications</div><div class="feat-desc">Stay informed with instant notifications via SMS and email.</div></div>
-        <div class="feat-card"><div class="feat-icon">📱</div><div class="feat-title">Client & Admin App</div><div class="feat-desc">Access your booking system anytime, anywhere.</div></div>
-        <div class="feat-card"><div class="feat-icon">💳</div><div class="feat-title">Accept Payments</div><div class="feat-desc">Securely accept payments for bookings through an integrated payment gateway.</div></div>
-        <div class="feat-card"><div class="feat-icon">🔗</div><div class="feat-title">Integrations & API</div><div class="feat-desc">Twilio, OpenAI, webhooks and more for custom workflows.</div></div>
-        <div class="feat-card"><div class="feat-icon">⚙️</div><div class="feat-title">Custom Features</div><div class="feat-desc">Tailor your system with custom features to match your unique business needs.</div></div>
-        <div class="feat-card"><div class="feat-icon">🎨</div><div class="feat-title">Full Customization</div><div class="feat-desc">Personalize your booking site with custom branding, colors, and design.</div></div>
-        <div class="feat-card"><div class="feat-icon">🎁</div><div class="feat-title">Products & Promotions</div><div class="feat-desc">Boost sales by offering products and promotions alongside bookings.</div></div>
+        @forelse($features as $feature)
+          <div class="feat-card"><div class="feat-icon">{{ $feature->icon }}</div><div class="feat-title">{{ $feature->title }}</div><div class="feat-desc">{{ $feature->description }}</div></div>
+        @empty
+          <div class="feat-card"><div class="feat-icon">🌐</div><div class="feat-title">Accept Online Bookings</div><div class="feat-desc">Enable hassle-free online bookings through our intuitive, mobile-optimized platform.</div></div>
+          <div class="feat-card"><div class="feat-icon">💬</div><div class="feat-title">SMS & Email Notifications</div><div class="feat-desc">Stay informed with instant notifications via SMS and email.</div></div>
+          <div class="feat-card"><div class="feat-icon">📱</div><div class="feat-title">Client & Admin App</div><div class="feat-desc">Access your booking system anytime, anywhere.</div></div>
+          <div class="feat-card"><div class="feat-icon">💳</div><div class="feat-title">Accept Payments</div><div class="feat-desc">Securely accept payments for bookings through an integrated payment gateway.</div></div>
+          <div class="feat-card"><div class="feat-icon">🔗</div><div class="feat-title">Integrations & API</div><div class="feat-desc">Twilio, OpenAI, webhooks and more for custom workflows.</div></div>
+          <div class="feat-card"><div class="feat-icon">⚙️</div><div class="feat-title">Custom Features</div><div class="feat-desc">Tailor your system with custom features to match your unique business needs.</div></div>
+          <div class="feat-card"><div class="feat-icon">🎨</div><div class="feat-title">Full Customization</div><div class="feat-desc">Personalize your booking site with custom branding, colors, and design.</div></div>
+          <div class="feat-card"><div class="feat-icon">🎁</div><div class="feat-title">Products & Promotions</div><div class="feat-desc">Boost sales by offering products and promotions alongside bookings.</div></div>
+        @endforelse
       </div>
     </div>
   </section>
@@ -404,9 +407,13 @@
         <p class="section-sub">Customers request appointments → AI confirms → Staff notified and calendar updated.</p>
       </div>
       <div class="steps-grid">
-        <div class="step-card"><div class="step-num">1</div><div class="step-title">Book</div><div class="step-desc">Clients book via web, phone, or staff interface.</div></div>
-        <div class="step-card"><div class="step-num">2</div><div class="step-title">Confirm</div><div class="step-desc">AI-powered reminders and Twilio confirm appointments, detect intents, and notify staff.</div></div>
-        <div class="step-card"><div class="step-num">3</div><div class="step-title">Attend</div><div class="step-desc">Staff manage schedules with conflict detection and analytics dashboards.</div></div>
+        @forelse($howSteps as $step)
+          <div class="step-card"><div class="step-num">{{ $step->step_number }}</div><div class="step-title">{{ $step->title }}</div><div class="step-desc">{{ $step->description }}</div></div>
+        @empty
+          <div class="step-card"><div class="step-num">1</div><div class="step-title">Book</div><div class="step-desc">Clients book via web, phone, or staff interface.</div></div>
+          <div class="step-card"><div class="step-num">2</div><div class="step-title">Confirm</div><div class="step-desc">AI-powered reminders and Twilio confirm appointments, detect intents, and notify staff.</div></div>
+          <div class="step-card"><div class="step-num">3</div><div class="step-title">Attend</div><div class="step-desc">Staff manage schedules with conflict detection and analytics dashboards.</div></div>
+        @endforelse
       </div>
     </div>
   </section>
@@ -418,14 +425,18 @@
         <h2 class="section-title">Built for Service-Based Industries</h2>
       </div>
       <div class="ind-grid">
-        <div class="ind-card"><div class="ind-icon">🏥</div><div class="ind-name">Doctors & Healthcare</div></div>
-        <div class="ind-card"><div class="ind-icon">💼</div><div class="ind-name">Business Consultants</div></div>
-        <div class="ind-card"><div class="ind-icon">💻</div><div class="ind-name">Freelancers</div></div>
-        <div class="ind-card"><div class="ind-icon">⚖️</div><div class="ind-name">Lawyers & Attorneys</div></div>
-        <div class="ind-card"><div class="ind-icon">🎯</div><div class="ind-name">Consultants</div></div>
-        <div class="ind-card"><div class="ind-icon">🏋️</div><div class="ind-name">Professional Trainers</div></div>
-        <div class="ind-card"><div class="ind-icon">📊</div><div class="ind-name">Financial Advisors</div></div>
-        <div class="ind-card"><div class="ind-icon">📚</div><div class="ind-name">Tutors & Teachers</div></div>
+        @forelse($industries as $industry)
+          <div class="ind-card"><div class="ind-icon">{{ $industry->icon }}</div><div class="ind-name">{{ $industry->name }}</div></div>
+        @empty
+          <div class="ind-card"><div class="ind-icon">🏥</div><div class="ind-name">Doctors & Healthcare</div></div>
+          <div class="ind-card"><div class="ind-icon">💼</div><div class="ind-name">Business Consultants</div></div>
+          <div class="ind-card"><div class="ind-icon">💻</div><div class="ind-name">Freelancers</div></div>
+          <div class="ind-card"><div class="ind-icon">⚖️</div><div class="ind-name">Lawyers & Attorneys</div></div>
+          <div class="ind-card"><div class="ind-icon">🎯</div><div class="ind-name">Consultants</div></div>
+          <div class="ind-card"><div class="ind-icon">🏋️</div><div class="ind-name">Professional Trainers</div></div>
+          <div class="ind-card"><div class="ind-icon">📊</div><div class="ind-name">Financial Advisors</div></div>
+          <div class="ind-card"><div class="ind-icon">📚</div><div class="ind-name">Tutors & Teachers</div></div>
+        @endforelse
       </div>
     </div>
   </section>
@@ -441,35 +452,52 @@
         <button class="toggle-btn" onclick="setPricing('yearly',this)">Yearly</button>
       </div>
       <div class="pricing-grid">
-        <div class="price-card">
-          <div class="plan-name">Basic</div>
-          <div class="plan-price" data-monthly="9.99" data-yearly="99.99"><sup>$</sup>9.99</div>
-          <div class="plan-period">USD / month</div>
-          <ul class="plan-features"><li>5 Staff members</li><li>10 daily appointments</li><li>150 monthly appointments</li><li>Email support</li></ul>
-          <a href="/register" class="btn-plan">Subscribe Now</a>
-        </div>
-        <div class="price-card popular">
-          <div class="pop-badge">Most Popular</div>
-          <div class="plan-name">Standard</div>
-          <div class="plan-price" data-monthly="14.99" data-yearly="139.99"><sup>$</sup>14.99</div>
-          <div class="plan-period">USD / month</div>
-          <ul class="plan-features"><li>10 Staff members</li><li>12 daily appointments</li><li>300 monthly appointments</li><li>Priority support</li></ul>
-          <a href="/register" class="btn-plan btn-plan-primary">Subscribe Now</a>
-        </div>
-        <div class="price-card">
-          <div class="plan-name">Premium</div>
-          <div class="plan-price" data-monthly="19.99" data-yearly="199.99"><sup>$</sup>19.99</div>
-          <div class="plan-period">USD / month</div>
-          <ul class="plan-features"><li>15 Staff members</li><li>15 daily appointments</li><li>450 monthly appointments</li><li>AI voice & SMS</li></ul>
-          <a href="/register" class="btn-plan">Subscribe Now</a>
-        </div>
-        <div class="price-card">
-          <div class="plan-name">Elite</div>
-          <div class="plan-price" data-monthly="39.99" data-yearly="399.99"><sup>$</sup>39.99</div>
-          <div class="plan-period">USD / month</div>
-          <ul class="plan-features"><li>50 Staff members</li><li>50 daily appointments</li><li>1,500 monthly appointments</li><li>White-label & SLA</li></ul>
-          <a href="/register" class="btn-plan">Subscribe Now</a>
-        </div>
+        @forelse($plans as $plan)
+          <div class="price-card{{ $plan->is_popular ? ' popular' : '' }}">
+            @if($plan->badge_text)
+              <div class="pop-badge">{{ $plan->badge_text }}</div>
+            @endif
+            <div class="plan-name">{{ $plan->name }}</div>
+            <div class="plan-price" data-monthly="{{ $plan->monthly_price }}" data-yearly="{{ $plan->yearly_price }}"><sup>$</sup>{{ $plan->monthly_price }}</div>
+            <div class="plan-period">USD / month</div>
+            <ul class="plan-features">
+              @foreach($plan->features ?? [] as $feature)
+                <li>{{ $feature }}</li>
+              @endforeach
+            </ul>
+            <a href="/register" class="btn-plan{{ $plan->is_popular ? ' btn-plan-primary' : '' }}">{{ $plan->button_text }}</a>
+          </div>
+        @empty
+          <div class="price-card">
+            <div class="plan-name">Basic</div>
+            <div class="plan-price" data-monthly="9.99" data-yearly="99.99"><sup>$</sup>9.99</div>
+            <div class="plan-period">USD / month</div>
+            <ul class="plan-features"><li>5 Staff members</li><li>10 daily appointments</li><li>150 monthly appointments</li><li>Email support</li></ul>
+            <a href="/register" class="btn-plan">Subscribe Now</a>
+          </div>
+          <div class="price-card popular">
+            <div class="pop-badge">Most Popular</div>
+            <div class="plan-name">Standard</div>
+            <div class="plan-price" data-monthly="14.99" data-yearly="139.99"><sup>$</sup>14.99</div>
+            <div class="plan-period">USD / month</div>
+            <ul class="plan-features"><li>10 Staff members</li><li>12 daily appointments</li><li>300 monthly appointments</li><li>Priority support</li></ul>
+            <a href="/register" class="btn-plan btn-plan-primary">Subscribe Now</a>
+          </div>
+          <div class="price-card">
+            <div class="plan-name">Premium</div>
+            <div class="plan-price" data-monthly="19.99" data-yearly="199.99"><sup>$</sup>19.99</div>
+            <div class="plan-period">USD / month</div>
+            <ul class="plan-features"><li>15 Staff members</li><li>15 daily appointments</li><li>450 monthly appointments</li><li>AI voice & SMS</li></ul>
+            <a href="/register" class="btn-plan">Subscribe Now</a>
+          </div>
+          <div class="price-card">
+            <div class="plan-name">Elite</div>
+            <div class="plan-price" data-monthly="39.99" data-yearly="399.99"><sup>$</sup>39.99</div>
+            <div class="plan-period">USD / month</div>
+            <ul class="plan-features"><li>50 Staff members</li><li>50 daily appointments</li><li>1,500 monthly appointments</li><li>White-label & SLA</li></ul>
+            <a href="/register" class="btn-plan">Subscribe Now</a>
+          </div>
+        @endforelse
       </div>
     </div>
   </section>
@@ -481,26 +509,24 @@
         <h2 class="section-title">What Our Users Say</h2>
       </div>
       <div class="test-grid">
-        <div class="test-card">
-          <div class="stars">★★★★★</div>
-          <p class="test-text">{{ $brandName }} has truly transformed the way I manage appointments for my business. With its intuitive interface and robust features, scheduling has become a breeze.</p>
-          <div class="test-author"><div class="test-av">J</div><div><div class="test-name">John Doe</div><div class="test-role">Healthcare Provider</div></div></div>
-        </div>
-        <div class="test-card">
-          <div class="stars">★★★★★</div>
-          <p class="test-text">As a busy professional, I rely on {{ $brandName }} to keep my schedule organized. The platform is incredibly user-friendly and the AI features are game-changing.</p>
-          <div class="test-author"><div class="test-av">D</div><div><div class="test-name">David Smith</div><div class="test-role">Business Consultant</div></div></div>
-        </div>
-        <div class="test-card">
-          <div class="stars">★★★★★</div>
-          <p class="test-text">{{ $brandName }} has been a lifesaver for my small business. It's packed with all the features I need to manage appointments efficiently.</p>
-          <div class="test-author"><div class="test-av">A</div><div><div class="test-name">Alex Hae</div><div class="test-role">Freelancer</div></div></div>
-        </div>
-        <div class="test-card">
-          <div class="stars">★★★★★</div>
-          <p class="test-text">{{ $brandName }} has simplified my appointment management process. The automation features like reminders and follow-ups have helped me stay perfectly organized.</p>
-          <div class="test-author"><div class="test-av">S</div><div><div class="test-name">Steve Warn</div><div class="test-role">Attorney</div></div></div>
-        </div>
+        @forelse($testimonials as $testimonial)
+          <div class="test-card">
+            <div class="stars">{{ str_repeat('★', $testimonial->rating) }}</div>
+            <p class="test-text">{{ $brandName }} {{ $testimonial->text }}</p>
+            <div class="test-author"><div class="test-av">{{ substr($testimonial->author_name, 0, 1) }}</div><div><div class="test-name">{{ $testimonial->author_name }}</div><div class="test-role">{{ $testimonial->author_role }}</div></div></div>
+          </div>
+        @empty
+          <div class="test-card">
+            <div class="stars">★★★★★</div>
+            <p class="test-text">{{ $brandName }} has truly transformed the way I manage appointments for my business.</p>
+            <div class="test-author"><div class="test-av">J</div><div><div class="test-name">John Doe</div><div class="test-role">Healthcare Provider</div></div></div>
+          </div>
+          <div class="test-card">
+            <div class="stars">★★★★★</div>
+            <p class="test-text">As a busy professional, I rely on {{ $brandName }} to keep my schedule organized.</p>
+            <div class="test-author"><div class="test-av">D</div><div><div class="test-name">David Smith</div><div class="test-role">Business Consultant</div></div></div>
+          </div>
+        @endforelse
       </div>
     </div>
   </section>
@@ -512,23 +538,27 @@
         <h2 class="section-title">Frequently Asked Questions</h2>
       </div>
       <div class="faq-grid">
-        <div class="faq-item"><div class="faq-q">What is {{ $brandName }}?</div><div class="faq-a">An intuitive online platform designed to simplify appointment scheduling and management for businesses.</div></div>
-        <div class="faq-item"><div class="faq-q">How does it work?</div><div class="faq-a">Create, manage, and track appointments through a user-friendly interface with AI-powered automation.</div></div>
-        <div class="faq-item"><div class="faq-q">Is it suitable for my business?</div><div class="faq-a">Yes — it caters to healthcare, beauty, education, legal, and professional services.</div></div>
-        <div class="faq-item"><div class="faq-q">How secure is my data?</div><div class="faq-a">We employ industry-standard encryption and security protocols to safeguard your data.</div></div>
-        <div class="faq-item"><div class="faq-q">How can I get started?</div><div class="faq-a">Simply sign up for an account, customize your settings, and start scheduling.</div></div>
-        <div class="faq-item"><div class="faq-q">Does it integrate with Twilio & OpenAI?</div><div class="faq-a">Yes — Twilio for voice & SMS, OpenAI for AI-powered reminders and intent detection.</div></div>
+        @forelse($faqs as $faq)
+          <div class="faq-item"><div class="faq-q">{{ $faq->question }}</div><div class="faq-a">{{ $faq->answer }}</div></div>
+        @empty
+          <div class="faq-item"><div class="faq-q">What is {{ $brandName }}?</div><div class="faq-a">An intuitive online platform designed to simplify appointment scheduling and management for businesses.</div></div>
+          <div class="faq-item"><div class="faq-q">How does it work?</div><div class="faq-a">Create, manage, and track appointments through a user-friendly interface with AI-powered automation.</div></div>
+          <div class="faq-item"><div class="faq-q">Is it suitable for my business?</div><div class="faq-a">Yes — it caters to healthcare, beauty, education, legal, and professional services.</div></div>
+          <div class="faq-item"><div class="faq-q">How secure is my data?</div><div class="faq-a">We employ industry-standard encryption and security protocols to safeguard your data.</div></div>
+          <div class="faq-item"><div class="faq-q">How can I get started?</div><div class="faq-a">Simply sign up for an account, customize your settings, and start scheduling.</div></div>
+          <div class="faq-item"><div class="faq-q">Does it integrate with Twilio & OpenAI?</div><div class="faq-a">Yes — Twilio for voice & SMS, OpenAI for AI-powered reminders and intent detection.</div></div>
+        @endforelse
       </div>
     </div>
   </section>
 
   <div class="cta-band" id="contact">
     <div class="cta-inner">
-      <h2 class="cta-title">Ready to Streamline Your Appointments?</h2>
-      <p class="cta-sub">Join 95,000+ businesses worldwide. Start your free trial today.</p>
+      <h2 class="cta-title">{{ $theme['cta_title'] ?? 'Ready to Streamline Your Appointments?' }}</h2>
+      <p class="cta-sub">{{ $theme['cta_subtitle'] ?? 'Join 95,000+ businesses worldwide. Start your free trial today.' }}</p>
       <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
-        <a href="/register" class="btn-primary">Start Free Trial</a>
-        <a href="mailto:{{ $theme['contact_email'] ?: 'sales@appointcare.com' }}" class="btn-secondary">Contact Sales</a>
+        <a href="/register" class="btn-primary">{{ $theme['cta_btn_primary'] ?? 'Start Free Trial' }}</a>
+        <a href="mailto:{{ $theme['contact_email'] ?: 'sales@appointcare.com' }}" class="btn-secondary">{{ $theme['cta_btn_secondary'] ?? 'Contact Sales' }}</a>
       </div>
     </div>
   </div>

@@ -89,10 +89,15 @@
             </a>
         @endif
 
-        <a href="{{ route('settings.index') }}"
-           class="flex items-center gap-3 px-4 py-3 rounded-xl transition {{ $active('settings.index') }}">
-            ⚙️ Settings
-        </a>
+            <a href="{{ route('admin.landing.index') }}"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl transition {{ $active('admin.landing.*') }}">
+                🏠 Landing Page
+            </a>
+
+            <a href="{{ route('settings.index') }}"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl transition {{ $active('settings.index') }}">
+                ⚙️ Settings
+            </a>
 
     </nav>
 

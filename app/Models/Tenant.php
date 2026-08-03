@@ -83,6 +83,41 @@ class Tenant extends Model
         return $this->hasMany(AppointmentRequest::class);
     }
 
+    public function landingFeatures(): HasMany
+    {
+        return $this->hasMany(LandingFeature::class);
+    }
+
+    public function landingHowSteps(): HasMany
+    {
+        return $this->hasMany(LandingHowStep::class);
+    }
+
+    public function landingIndustries(): HasMany
+    {
+        return $this->hasMany(LandingIndustry::class);
+    }
+
+    public function landingPlans(): HasMany
+    {
+        return $this->hasMany(LandingPlan::class);
+    }
+
+    public function landingTestimonials(): HasMany
+    {
+        return $this->hasMany(LandingTestimonial::class);
+    }
+
+    public function landingFaqs(): HasMany
+    {
+        return $this->hasMany(LandingFaq::class);
+    }
+
+    public function landingStats(): HasMany
+    {
+        return $this->hasMany(LandingStat::class);
+    }
+
     /**
      * Get the AI conversations for this tenant.
      */

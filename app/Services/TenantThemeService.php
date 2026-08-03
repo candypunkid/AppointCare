@@ -34,6 +34,13 @@ class TenantThemeService
             'contact_phone' => $tenant->phone ?? $defaults['contact_phone'],
             'contact_email' => $tenant->email ?? $defaults['contact_email'],
             'contact_address' => $settings['contact_address'] ?? $defaults['contact_address'],
+            'hero_badge' => $settings['hero_badge'] ?? $defaults['hero_badge'],
+            'hero_btn_primary' => $settings['hero_btn_primary'] ?? $defaults['hero_btn_primary'],
+            'hero_btn_secondary' => $settings['hero_btn_secondary'] ?? $defaults['hero_btn_secondary'],
+            'cta_title' => $settings['cta_title'] ?? $defaults['cta_title'],
+            'cta_subtitle' => $settings['cta_subtitle'] ?? $defaults['cta_subtitle'],
+            'cta_btn_primary' => $settings['cta_btn_primary'] ?? $defaults['cta_btn_primary'],
+            'cta_btn_secondary' => $settings['cta_btn_secondary'] ?? $defaults['cta_btn_secondary'],
         ];
     }
 
@@ -88,6 +95,13 @@ class TenantThemeService
             'contact_phone' => null,
             'contact_email' => null,
             'contact_address' => null,
+            'hero_badge' => 'Trusted by 95,000+ businesses worldwide',
+            'hero_btn_primary' => 'Get Started — Free Trial',
+            'hero_btn_secondary' => 'How it works',
+            'cta_title' => 'Ready to Streamline Your Appointments?',
+            'cta_subtitle' => 'Join 95,000+ businesses worldwide. Start your free trial today.',
+            'cta_btn_primary' => 'Start Free Trial',
+            'cta_btn_secondary' => 'Contact Sales',
         ];
     }
 
@@ -111,7 +125,7 @@ class TenantThemeService
             }
         }
 
-        $textFields = ['hero_title', 'hero_subtitle', 'font_family', 'footer_text', 'contact_address'];
+        $textFields = ['hero_title', 'hero_subtitle', 'font_family', 'footer_text', 'contact_address', 'hero_badge', 'hero_btn_primary', 'hero_btn_secondary', 'cta_title', 'cta_subtitle', 'cta_btn_primary', 'cta_btn_secondary'];
         foreach ($textFields as $field) {
             if (isset($themeData[$field])) {
                 $settings[$field] = $themeData[$field];
