@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\MakeReminderCallJob;
-use App\Models\Appointment;
-use App\Models\CallLog;
 use App\Repositories\AppointmentRepository;
 use App\Repositories\CallLogRepository;
 use App\Services\ConversationService;
@@ -12,7 +10,6 @@ use App\Services\OpenAIService;
 use App\Services\TwilioService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class TwilioController extends Controller
 {

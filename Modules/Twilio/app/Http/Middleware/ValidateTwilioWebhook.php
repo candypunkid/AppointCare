@@ -4,6 +4,7 @@ namespace Modules\Twilio\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Twilio\Security\RequestValidator;
 
 class ValidateTwilioWebhook
@@ -16,8 +17,9 @@ class ValidateTwilioWebhook
         $params = $request->all();
         $signature = $request->header('X-Twilio-Signature', '');
 
-        if (!$validator->validate($signature, $url, $params)) {
-            \Illuminate\Support\Facades\Log::warning('Invalid Twilio webhook signature');
+        if (! $validator->validate($signature, $url, $params)) {
+            Log::warning('Invalid Twilio webhook signature');
+
             return response('Unauthorized', 403);
         }
 

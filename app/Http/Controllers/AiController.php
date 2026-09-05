@@ -21,6 +21,7 @@ class AiController extends Controller
             $answer = $ai->chat($request->input('prompt'));
         } catch (\Exception $e) {
             dd($e->getMessage());
+
             return response()->json(['error' => $e->getMessage()], 500);
         }
 

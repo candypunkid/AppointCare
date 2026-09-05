@@ -2,12 +2,13 @@
 
 namespace App\Services;
 
+use App\Events\AppointmentCancelled;
+use App\Events\AppointmentConfirmed;
+use App\Events\AppointmentRescheduled;
 use App\Models\AiAction;
 use App\Models\Appointment;
 use App\Models\CallLog;
-use App\Events\AppointmentConfirmed;
-use App\Events\AppointmentCancelled;
-use App\Events\AppointmentRescheduled;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class AppointmentService
@@ -55,28 +56,29 @@ class AppointmentService
     public function rescheduleAppointment(Appointment $appointment, CallLog $callLog, float $confidence, string $newDate = '', string $newTime = ''): void
     {
         $oldDate = $appointment->scheduled_at?->toDateTimeString();
-        $oldStatus = $appointment->status;
 
-        if ($newDate && $newTime) {
-            try {
-                $newDateTime = \Carbon\Carbon::parse("$newDate $newTime");
-            } catch (\Exception $e) {
-                $newDateTime = now()->addDay();
-            }
-        } elseif ($newDate) {
-            try {
-                $existingTime = $appointment->scheduled_at?->format('H:i') ?? '09:00';
-                $newDateTime = \Carbon\Carbon::parse("$newDate $existingTime");
-            } catch (\Exception $e) {
-                $newDateTime = now()->addDay();
-            }
-        } else {
-            $newDateTime = now()->addDay();
+        if (! $newDate) {
+            Log::info('Reschedule requested, awaiting date and time', [
+                'appointment_id' => $appointment->id,
+                'confidence' => $confidence,
+            ]);
+
+            return;
+        }
+
+        try {
+            $newDateTime = $newTime
+                ? Carbon::parse("$newDate $newTime")
+                : Carbon::parse("$newDate ".($appointment->scheduled_at?->format('H:i') ?? '09:00'));
+        } catch (\Exception $e) {
+            $newDateTime = $appointment->scheduled_at?->copy()->addDay() ?? now()->addDay();
         }
 
         $appointment->update([
             'status' => 'rescheduled',
             'scheduled_at' => $newDateTime,
+            'original_scheduled_at' => $appointment->original_scheduled_at ?? $oldDate,
+            'rescheduled_at' => $newDateTime,
             'metadata' => array_merge($appointment->metadata ?? [], [
                 'previous_scheduled_at' => $oldDate,
                 'rescheduled_by' => 'ai',
@@ -137,9 +139,9 @@ class AppointmentService
             ->toArray();
 
         $available = [];
-        $current = \Carbon\Carbon::parse($date)->setHour($startHour)->setMinute(0);
+        $current = Carbon::parse($date)->setHour($startHour)->setMinute(0);
 
-        $end = \Carbon\Carbon::parse($date)->setHour($endHour)->setMinute(0);
+        $end = Carbon::parse($date)->setHour($endHour)->setMinute(0);
 
         while ($current->lessThan($end)) {
             $timeStr = $current->format('H:i');

@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
-use Twilio\Rest\Client;
-use Twilio\TwiML\VoiceResponse;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Twilio\Rest\Client;
+use Twilio\TwiML\VoiceResponse;
 
 class TwilioService
 {
@@ -40,7 +40,6 @@ class TwilioService
                 'method' => 'POST',
                 'statusCallbackEvent' => ['initiated', 'ringing', 'answered', 'completed'],
                 'statusCallbackMethod' => 'POST',
-                'machineDetection' => 'Enable',
             ];
 
             if ($statusCallbackUrl) {
@@ -48,7 +47,11 @@ class TwilioService
             }
 
             if ($appointmentId) {
-                $options['statusCallback'] = ($statusCallbackUrl ?: $callbackUrl) . '?appointment_id=' . $appointmentId;
+                $statusCallbackTarget = $statusCallbackUrl ?: $callbackUrl;
+                if (! str_contains($statusCallbackTarget, 'appointment_id=')) {
+                    $statusCallbackTarget .= (str_contains($statusCallbackTarget, '?') ? '&' : '?').'appointment_id='.$appointmentId;
+                }
+                $options['statusCallback'] = $statusCallbackTarget;
             }
 
             $call = $this->twilio->calls->create(
@@ -64,6 +67,7 @@ class TwilioService
             ];
         } catch (Exception $e) {
             Log::error('Twilio outbound call failed', ['error' => $e->getMessage()]);
+
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
@@ -86,13 +90,14 @@ class TwilioService
             return ['success' => true, 'message_sid' => $sms->sid, 'status' => $sms->status];
         } catch (Exception $e) {
             Log::error('Twilio SMS failed', ['error' => $e->getMessage()]);
+
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
 
     public function generateAppointmentReminderTwiML(array $appointmentData, string $gatherUrl, string $humanTransferUrl = ''): VoiceResponse
     {
-        $twiml = new VoiceResponse();
+        $twiml = new VoiceResponse;
 
         $greeting = "Hello {$appointmentData['customer_name']}. This is AppointCare calling to remind you about your {$appointmentData['service']} appointment tomorrow at {$appointmentData['time']}. Will you be able to attend? Please say yes or no, or tell me how I can help you.";
 
@@ -115,31 +120,35 @@ class TwilioService
 
     public function generateSimpleResponseTwiML(string $message): VoiceResponse
     {
-        $twiml = new VoiceResponse();
+        $twiml = new VoiceResponse;
         $twiml->say($message, ['voice' => 'Polly.Joanna', 'language' => 'en-US']);
+
         return $twiml;
     }
 
     public function generateNepaliTwiML(string $message): VoiceResponse
     {
-        $twiml = new VoiceResponse();
+        $twiml = new VoiceResponse;
         $twiml->say($message, ['voice' => 'Polly.Joanna', 'language' => 'ne-NP']);
+
         return $twiml;
     }
 
     public function generateHangupTwiML(): VoiceResponse
     {
-        $twiml = new VoiceResponse();
+        $twiml = new VoiceResponse;
         $twiml->say('Thank you for using AppointCare. Goodbye.', ['voice' => 'Polly.Joanna']);
         $twiml->hangup();
+
         return $twiml;
     }
 
     public function generateDialTwiML(string $phoneNumber): VoiceResponse
     {
-        $twiml = new VoiceResponse();
+        $twiml = new VoiceResponse;
         $twiml->say('Please hold while I connect you to a representative.', ['voice' => 'Polly.Joanna']);
         $twiml->dial($phoneNumber);
+
         return $twiml;
     }
 
@@ -194,6 +203,7 @@ class TwilioService
 
         try {
             $this->twilio->calls($callSid)->update(['status' => 'completed']);
+
             return true;
         } catch (Exception $e) {
             return false;
@@ -202,11 +212,11 @@ class TwilioService
 
     public function createGatherUrlForAppointment(string $appointmentId): string
     {
-        return route('api.twilio.voice') . '?appointment_id=' . $appointmentId;
+        return rtrim((string) config('app.url'), '/').'/api/twilio/voice?appointment_id='.$appointmentId;
     }
 
     public function createStatusUrlForAppointment(string $appointmentId): string
     {
-        return route('api.twilio.status') . '?appointment_id=' . $appointmentId;
+        return rtrim((string) config('app.url'), '/').'/api/twilio/status?appointment_id='.$appointmentId;
     }
 }

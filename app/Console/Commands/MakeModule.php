@@ -8,6 +8,7 @@ use Illuminate\Filesystem\Filesystem;
 class MakeModule extends Command
 {
     protected $signature = 'make:module {name}';
+
     protected $description = 'Scaffold a new AppointCare module';
 
     protected array $folders = [
@@ -35,7 +36,7 @@ class MakeModule extends Command
             if (! $files->isDirectory($path)) {
                 $files->makeDirectory($path, 0755, true, true);
             }
-            $files->put("{$path}/.gitkeep", "");
+            $files->put("{$path}/.gitkeep", '');
         }
 
         // Create the Service Provider

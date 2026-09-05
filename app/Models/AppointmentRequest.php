@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
+use App\Support\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Support\Traits\BelongsToTenant;
 
 class AppointmentRequest extends Model
 {
-    use SoftDeletes, BelongsToTenant;
+    use BelongsToTenant, SoftDeletes;
 
     protected $fillable = [
         'tenant_id',

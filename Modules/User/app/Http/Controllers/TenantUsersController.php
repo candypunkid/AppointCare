@@ -20,7 +20,7 @@ class TenantUsersController extends Controller
         $filters = $request->only(['q', 'role', 'sort', 'direction']);
         $filters['tenant_id'] = $user->tenant_id;
 
-        $repo = new UserRepository();
+        $repo = new UserRepository;
         $users = $repo->paginate($filters, 20);
 
         return view('user::admin.tenant_users.index', compact('users'));
@@ -45,7 +45,7 @@ class TenantUsersController extends Controller
 
         $data = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
+            'email' => 'required|email|unique:users,email,'.$user->id,
             'role' => 'required|in:staff,customer,tenant_admin',
         ]);
 

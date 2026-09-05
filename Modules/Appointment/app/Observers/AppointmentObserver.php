@@ -2,8 +2,8 @@
 
 namespace Modules\Appointment\Observers;
 
-use Modules\Appointment\Models\Appointment;
 use Illuminate\Support\Facades\Log;
+use Modules\Appointment\Models\Appointment;
 
 class AppointmentObserver
 {

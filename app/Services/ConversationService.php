@@ -98,7 +98,7 @@ class ConversationService
     {
         $callLog->update([
             'status' => 'failed',
-            'ai_response' => ($callLog->ai_response ? $callLog->ai_response . "\n" : '') . "FAILED: $reason",
+            'ai_response' => ($callLog->ai_response ? $callLog->ai_response."\n" : '')."FAILED: $reason",
         ]);
     }
 }

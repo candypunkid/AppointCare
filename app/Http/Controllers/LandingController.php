@@ -15,7 +15,7 @@ class LandingController extends Controller
         $landing = $landingService->getLandingData($tenant);
 
         $brandName = $theme['brand_name'] ?? 'AppointCare';
-        $heroTitle = str_replace('{brand}', '<em>' . e($brandName) . '</em>', e($theme['hero_title']));
+        $heroTitle = str_replace('{brand}', '<em>'.e($brandName).'</em>', e($theme['hero_title']));
         $heroSubtitle = e($theme['hero_subtitle']);
         $logoPath = $theme['logo_path'];
         $cssVars = $themeService->getCssVariables($tenant);

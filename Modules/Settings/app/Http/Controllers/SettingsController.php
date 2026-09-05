@@ -4,8 +4,8 @@ namespace Modules\Settings\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Modules\Settings\Models\Setting;
 use Illuminate\Support\Facades\Storage;
+use Modules\Settings\Models\Setting;
 
 class SettingsController extends Controller
 {
@@ -93,7 +93,7 @@ class SettingsController extends Controller
      */
     private function uploadFile(Request $request, $field, $oldFile = null)
     {
-        if (!$request->hasFile($field)) {
+        if (! $request->hasFile($field)) {
             return $oldFile;
         }
 

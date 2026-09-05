@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 class AIService
 {
     protected string $url;
+
     protected string $model;
 
     public function __construct()
@@ -21,9 +22,9 @@ class AIService
         try {
             return Http::timeout(5)
                 // ->get($this->url)
-                ->get($this->url . '/api/tags')
+                ->get($this->url.'/api/tags')
                 ->successful();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -38,7 +39,7 @@ class AIService
             ?? 'You are a helpful assistant for AppointCare. Provide short, actionable answers.';
 
         $response = Http::timeout(120)
-            ->post($this->url . '/api/chat', [
+            ->post($this->url.'/api/chat', [
                 'model' => $this->model,
                 'messages' => [
                     [

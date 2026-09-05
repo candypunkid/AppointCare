@@ -1,7 +1,7 @@
 <?php
 
-use Modules\Appointment\Http\Controllers\AppointmentController;
 use Illuminate\Support\Facades\Route;
+use Modules\Appointment\Http\Controllers\AppointmentController;
 
 Route::post('/appointments', [AppointmentController::class, 'store']);
 Route::get('/appointments/{appointment}', [AppointmentController::class, 'show']);

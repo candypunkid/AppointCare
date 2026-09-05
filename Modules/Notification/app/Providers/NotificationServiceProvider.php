@@ -2,8 +2,8 @@
 
 namespace Modules\Notification\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\ServiceProvider;
 use Modules\Appointment\Events\AppointmentStatusChanged;
 use Modules\Notification\Listeners\SendAppointmentNotification;
 

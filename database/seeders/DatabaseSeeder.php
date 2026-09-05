@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // User::factory(10)->create();
-        $this->call(\Database\Seeders\RolesAndPermissionsSeeder::class);
+        $this->call(RolesAndPermissionsSeeder::class);
 
         // Create a default super admin if none exists
         if (! User::where('email', 'super@appointcare.test')->exists()) {

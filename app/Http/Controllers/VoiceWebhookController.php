@@ -39,10 +39,11 @@ class VoiceWebhookController extends Controller
         if (! $appointment) {
             $twiml = $this->twilioService->generateSimpleResponseTwiML('Sorry, we could not find your appointment details. Goodbye.');
             $twiml->hangup();
+
             return response($twiml->asXML(), 200)->header('Content-Type', 'application/xml');
         }
 
-        $callLog = $this->callLogRepository->findByTwilioSid($callSid);
+        $callLog = $callSid ? $this->callLogRepository->findByTwilioSid($callSid) : null;
 
         if (! $callLog) {
             $callLog = $this->conversationService->startCallLog($appointment->id, $callSid ?: 'unknown');
@@ -52,7 +53,7 @@ class VoiceWebhookController extends Controller
             $this->conversationService->appendMessage($callLog, 'customer', $speechResult);
         }
 
-        if (! $speechResult && ! $request->input('SpeechResult')) {
+        if (! $speechResult) {
             $appointmentData = [
                 'customer_name' => $appointment->customer?->name ?? 'there',
                 'service' => $appointment->service ?? 'appointment',
@@ -68,23 +69,13 @@ class VoiceWebhookController extends Controller
             return response($twiml->asXML(), 200)->header('Content-Type', 'application/xml');
         }
 
-        $conversationHistory = $callLog->conversationLogs()
-            ->orderBy('created_at')
-            ->get()
-            ->map(fn ($log) => ['speaker' => $log->speaker, 'message' => $log->message])
-            ->toArray();
-
         $appointmentData = [
             'service' => $appointment->service ?? 'Appointment',
             'date' => $appointment->scheduled_at?->format('Y-m-d') ?? '',
             'time' => $appointment->scheduled_at?->format('g:i A') ?? '',
         ];
 
-        $result = app(\App\Services\OpenAIService::class)->analyzeIntent($conversationHistory, $appointmentData);
-
-        $this->conversationService->appendMessage($callLog, 'ai', $result['response_message']);
-
-        \App\Jobs\ProcessConversationJob::dispatch($callLog);
+        $result = $this->conversationService->processConversation($callLog, $appointmentData);
 
         return $this->buildTwiMLResponse($result, $appointment, $callLog, $appointmentId);
     }
@@ -104,7 +95,7 @@ class VoiceWebhookController extends Controller
         ]);
 
         if ($callSid) {
-            $callLog = $this->callLogRepository->findByTwilioSid($callSid);
+$callLog = $callSid ? $this->callLogRepository->findByTwilioSid($callSid) : null;
 
             if ($callLog) {
                 $updateData = [];
@@ -150,6 +141,7 @@ class VoiceWebhookController extends Controller
         if (! $appointment) {
             $twiml = $this->twilioService->generateSimpleResponseTwiML('Thank you for calling AppointCare. Goodbye.');
             $twiml->hangup();
+
             return response($twiml->asXML(), 200)->header('Content-Type', 'application/xml');
         }
 
@@ -198,6 +190,7 @@ class VoiceWebhookController extends Controller
                 $twiml->say('No representative is available at this time. Please call again later.');
                 $twiml->hangup();
             }
+
             return response($twiml->asXML(), 200)->header('Content-Type', 'application/xml');
         }
 
@@ -218,12 +211,21 @@ class VoiceWebhookController extends Controller
                 $twiml->say('Our team is currently unavailable. We will call you back shortly.');
                 $twiml->hangup();
             }
+
             return response($twiml->asXML(), 200)->header('Content-Type', 'application/xml');
         }
 
-        if (in_array($intent, ['confirm_appointment', 'cancel_appointment', 'reschedule_appointment'])) {
+        if (in_array($intent, ['confirm_appointment', 'cancel_appointment'])) {
             $twiml = $this->twilioService->generateSimpleResponseTwiML($message);
             $twiml->hangup();
+
+            return response($twiml->asXML(), 200)->header('Content-Type', 'application/xml');
+        }
+
+        if ($intent === 'reschedule_appointment' && (($result['new_date'] ?? '') !== '' || ($result['new_time'] ?? '') !== '')) {
+            $twiml = $this->twilioService->generateSimpleResponseTwiML($message);
+            $twiml->hangup();
+
             return response($twiml->asXML(), 200)->header('Content-Type', 'application/xml');
         }
 
@@ -245,8 +247,9 @@ class VoiceWebhookController extends Controller
     {
         $url = route('api.twilio.voice');
         if ($appointmentId) {
-            $url .= '?appointment_id=' . $appointmentId;
+            $url .= '?appointment_id='.$appointmentId;
         }
+
         return $url;
     }
 }

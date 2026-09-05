@@ -12,8 +12,9 @@ class TenantsController extends Controller
     public function index()
     {
         $filters = request()->only(['q', 'is_active', 'sort', 'direction']);
-        $repo = new TenantRepository();
+        $repo = new TenantRepository;
         $tenants = $repo->paginate($filters, 20);
+
         return view('user::admin.tenants.index', compact('tenants'));
     }
 
@@ -56,6 +57,7 @@ class TenantsController extends Controller
     public function destroy(Tenant $tenant)
     {
         $tenant->delete();
+
         return redirect()->route('admin.tenants.index')->with('success', 'Tenant removed');
     }
 }

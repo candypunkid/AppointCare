@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Appointment;
+use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -13,6 +14,7 @@ class AppointmentFactory extends Factory
     public function definition(): array
     {
         return [
+            'tenant_id' => Tenant::factory(),
             'customer_id' => User::factory(),
             'staff_id' => null,
             'service' => fake()->randomElement(['Consultation', 'Checkup', 'Follow-up', 'Cleaning']),

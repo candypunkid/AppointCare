@@ -2,8 +2,9 @@
 
 namespace App\Repositories;
 
+use App\Models\AiAction;
 use App\Models\Appointment;
-use App\Models\User;
+use App\Models\CallLog;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
@@ -63,11 +64,11 @@ class AppointmentRepository
             ->where('notes', 'like', '%no-show%')
             ->count();
 
-        $avgDuration = \App\Models\CallLog::whereNotNull('duration')
+        $avgDuration = CallLog::whereNotNull('duration')
             ->avg('duration');
 
-        $aiActions = \App\Models\AiAction::count();
-        $successfulActions = \App\Models\AiAction::where('confidence', '>=', 0.7)->count();
+        $aiActions = AiAction::count();
+        $successfulActions = AiAction::where('confidence', '>=', 0.7)->count();
         $aiAccuracy = $aiActions > 0 ? round(($successfulActions / $aiActions) * 100, 2) : 0;
 
         return [

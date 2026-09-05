@@ -18,6 +18,7 @@ class TenantController extends Controller
     public function index(): View
     {
         $tenants = Tenant::withCount('users', 'appointments')->latest()->paginate(15);
+
         return view('admin.tenants.index', compact('tenants'));
     }
 
@@ -53,6 +54,7 @@ class TenantController extends Controller
     public function edit(Tenant $tenant): View
     {
         $theme = $this->themeService->getTheme($tenant);
+
         return view('admin.tenants.edit', compact('tenant', 'theme'));
     }
 
@@ -60,8 +62,8 @@ class TenantController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:tenants,slug,' . $tenant->id,
-            'domain' => 'nullable|string|max:255|unique:tenants,domain,' . $tenant->id,
+            'slug' => 'required|string|max:255|unique:tenants,slug,'.$tenant->id,
+            'domain' => 'nullable|string|max:255|unique:tenants,domain,'.$tenant->id,
             'phone' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
             'description' => 'nullable|string|max:1000',
@@ -104,6 +106,7 @@ class TenantController extends Controller
     public function destroy(Tenant $tenant): RedirectResponse
     {
         $tenant->delete();
+
         return redirect()->route('admin.tenants.index')
             ->with('success', 'Tenant deleted successfully.');
     }

@@ -2,10 +2,10 @@
 
 namespace Modules\Twilio\Services;
 
+use Illuminate\Support\Facades\Log;
+use Modules\Appointment\Models\Appointment;
 use Twilio\Rest\Client;
 use Twilio\TwiML\VoiceResponse;
-use Modules\Appointment\Models\Appointment;
-use Illuminate\Support\Facades\Log;
 
 class TwilioService
 {
@@ -14,7 +14,7 @@ class TwilioService
     /**
      * Lazy-load the Twilio Client using tenant-aware credentials if available.
      */
-    private function getClient(Appointment $appointment = null): Client
+    private function getClient(?Appointment $appointment = null): Client
     {
         if ($this->twilio) {
             return $this->twilio;
@@ -33,7 +33,7 @@ class TwilioService
     public function callCustomer(Appointment $appointment): string
     {
         try {
-            $webhookUrl = config('services.twilio.webhook_base') . '/twilio/webhook/voice?appointment_id=' . $appointment->id;
+            $webhookUrl = config('services.twilio.webhook_base').'/twilio/webhook/voice?appointment_id='.$appointment->id;
 
             $call = $this->getClient($appointment)->calls->create(
                 $appointment->customer_phone,
@@ -41,7 +41,7 @@ class TwilioService
                 [
                     'url' => $webhookUrl,
                     'method' => 'POST',
-                    'statusCallback' => config('services.twilio.webhook_base') . '/twilio/webhook/status?appointment_id=' . $appointment->id,
+                    'statusCallback' => config('services.twilio.webhook_base').'/twilio/webhook/status?appointment_id='.$appointment->id,
                     'statusCallbackMethod' => 'POST',
                     'machineDetection' => 'Enable',
                     'record' => false,
@@ -56,14 +56,14 @@ class TwilioService
                 'last_called_at' => now(),
             ]);
 
-            Log::channel('twilio')->info("Outbound call initiated", [
+            Log::channel('twilio')->info('Outbound call initiated', [
                 'call_sid' => $call->sid,
                 'appointment_id' => $appointment->id,
             ]);
 
             return $call->sid;
         } catch (\Exception $e) {
-            Log::channel('twilio')->error("Failed to initiate call: " . $e->getMessage());
+            Log::channel('twilio')->error('Failed to initiate call: '.$e->getMessage());
             throw $e;
         }
     }
@@ -73,20 +73,20 @@ class TwilioService
      */
     public function buildVoiceTwiML(Appointment $appointment): string
     {
-        $response = new VoiceResponse();
+        $response = new VoiceResponse;
 
-        $greeting = "Hello " . $appointment->customer_name .
-            ", I'm calling to confirm your " . $appointment->appointment_type .
-            " appointment on " . $appointment->appointment_date->format('F jS') . ".";
+        $greeting = 'Hello '.$appointment->customer_name.
+            ", I'm calling to confirm your ".$appointment->appointment_type.
+            ' appointment on '.$appointment->appointment_date->format('F jS').'.';
 
         $response->say($greeting, ['voice' => 'Polly.Joanna']);
 
         $connect = $response->connect();
         $stream = $connect->stream([
-            'url' => 'wss://' . request()->getHost() . '/ws/aicall/' . $appointment->id,
+            'url' => 'wss://'.request()->getHost().'/ws/aicall/'.$appointment->id,
             'name' => 'openai-stream',
         ]);
-        $stream->parameter(['name' => 'appointmentId', 'value' => (string)$appointment->id]);
+        $stream->parameter(['name' => 'appointmentId', 'value' => (string) $appointment->id]);
 
         return $response->asXML();
     }
@@ -98,8 +98,8 @@ class TwilioService
     {
         $appointment->update(['status' => 'no_answer', 'notes' => 'Voicemail detected']);
 
-        $response = new VoiceResponse();
-        $response->say("Hello, this is an automated message to confirm your appointment. We will try to reach you again later. Goodbye.");
+        $response = new VoiceResponse;
+        $response->say('Hello, this is an automated message to confirm your appointment. We will try to reach you again later. Goodbye.');
         $response->hangup();
 
         return $response->asXML();
@@ -113,10 +113,10 @@ class TwilioService
         try {
             $this->getClient()->messages->create($to, [
                 'from' => config('services.twilio.phone_number'),
-                'body' => $message
+                'body' => $message,
             ]);
         } catch (\Exception $e) {
-            Log::channel('twilio')->error("SMS Failure: " . $e->getMessage());
+            Log::channel('twilio')->error('SMS Failure: '.$e->getMessage());
         }
     }
 
@@ -125,7 +125,7 @@ class TwilioService
      */
     public function handleStatusCallback(string $callSid, string $callStatus, Appointment $appointment): void
     {
-        Log::info("Call status update", [
+        Log::info('Call status update', [
             'call_sid' => $callSid,
             'status' => $callStatus,
             'appointment_id' => $appointment->id,
@@ -164,9 +164,9 @@ class TwilioService
     {
         try {
             $this->twilio->calls($callSid)->update(['status' => 'completed']);
-            Log::info("Call disconnected", ['call_sid' => $callSid]);
+            Log::info('Call disconnected', ['call_sid' => $callSid]);
         } catch (\Exception $e) {
-            Log::error("Failed to disconnect call: " . $e->getMessage());
+            Log::error('Failed to disconnect call: '.$e->getMessage());
         }
     }
 }

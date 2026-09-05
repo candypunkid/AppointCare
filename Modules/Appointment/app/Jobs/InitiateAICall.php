@@ -7,13 +7,13 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Modules\Appointment\Models\Appointment;
 use Modules\Twilio\Services\TwilioService;
-use Illuminate\Support\Facades\Log;
 
 class InitiateAICall implements ShouldQueue
 {
-    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public function __construct(
         public Appointment $appointment
@@ -40,9 +40,9 @@ class InitiateAICall implements ShouldQueue
                 'status' => 'confirmed',
             ]);
 
-            Log::info("AI call initiated successfully", ['call_sid' => $callSid]);
+            Log::info('AI call initiated successfully', ['call_sid' => $callSid]);
         } catch (\Exception $e) {
-            Log::error("Failed to initiate AI call: " . $e->getMessage());
+            Log::error('Failed to initiate AI call: '.$e->getMessage());
             $this->appointment->markAsFailed();
             throw $e;
         }

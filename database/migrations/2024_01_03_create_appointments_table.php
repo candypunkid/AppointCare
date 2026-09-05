@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('service');
             $table->dateTime('scheduled_at');
             $table->dateTime('scheduled_end_at')->nullable();
-            $table->enum('status', ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled', 'postponed'])->default('pending');
+            $table->enum('status', ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled', 'postponed', 'rescheduled', 'transferred', 'failed'])->default('pending');
             $table->text('notes')->nullable();
             $table->json('metadata')->nullable(); // for storing additional info
             $table->timestamps();

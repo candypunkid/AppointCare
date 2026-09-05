@@ -111,6 +111,7 @@ class LandingContentController extends Controller
     public function destroyFeature(LandingFeature $feature): RedirectResponse
     {
         $feature->delete();
+
         return redirect()->route('admin.landing.index')
             ->with('success', 'Feature deleted successfully.');
     }
@@ -157,6 +158,7 @@ class LandingContentController extends Controller
     public function destroyStep(LandingHowStep $step): RedirectResponse
     {
         $step->delete();
+
         return redirect()->route('admin.landing.index')
             ->with('success', 'Step deleted successfully.');
     }
@@ -201,6 +203,7 @@ class LandingContentController extends Controller
     public function destroyIndustry(LandingIndustry $industry): RedirectResponse
     {
         $industry->delete();
+
         return redirect()->route('admin.landing.index')
             ->with('success', 'Industry deleted successfully.');
     }
@@ -272,6 +275,7 @@ class LandingContentController extends Controller
     public function destroyPlan(LandingPlan $plan): RedirectResponse
     {
         $plan->delete();
+
         return redirect()->route('admin.landing.index')
             ->with('success', 'Plan deleted successfully.');
     }
@@ -320,6 +324,7 @@ class LandingContentController extends Controller
     public function destroyTestimonial(LandingTestimonial $testimonial): RedirectResponse
     {
         $testimonial->delete();
+
         return redirect()->route('admin.landing.index')
             ->with('success', 'Testimonial deleted successfully.');
     }
@@ -364,6 +369,7 @@ class LandingContentController extends Controller
     public function destroyFaq(LandingFaq $faq): RedirectResponse
     {
         $faq->delete();
+
         return redirect()->route('admin.landing.index')
             ->with('success', 'FAQ deleted successfully.');
     }
@@ -408,6 +414,7 @@ class LandingContentController extends Controller
     public function destroyStat(LandingStat $stat): RedirectResponse
     {
         $stat->delete();
+
         return redirect()->route('admin.landing.index')
             ->with('success', 'Stat deleted successfully.');
     }

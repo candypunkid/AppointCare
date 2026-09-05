@@ -5,9 +5,7 @@ namespace App\Services;
 use App\Models\AIConversation;
 use App\Models\Appointment;
 use App\Models\AppointmentRequest;
-use App\Models\Tenant;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class AIAppointmentHandler
@@ -33,7 +31,7 @@ class AIAppointmentHandler
      */
     public function processUserInput(AIConversation $conversation, $input): array
     {
-        $response = match ((int)$input) {
+        $response = match ((int) $input) {
             1 => $this->handleBooking($conversation),
             2 => $this->handleCancellation($conversation),
             3 => $this->handlePostponement($conversation),
@@ -54,7 +52,7 @@ class AIAppointmentHandler
         // Get first available staff member
         $staff = $tenant->staffUsers()->first();
 
-        if (!$staff) {
+        if (! $staff) {
             return ['prompt' => 'Sorry, no staff members are available right now. Please try again later.'];
         }
 
@@ -63,7 +61,7 @@ class AIAppointmentHandler
             ->where('email', $appointmentRequest->customer_email)
             ->first();
 
-        if (!$customer) {
+        if (! $customer) {
             $customer = User::create([
                 'tenant_id' => $tenant->id,
                 'name' => $appointmentRequest->customer_name,
@@ -93,6 +91,7 @@ class AIAppointmentHandler
         $appointmentRequest->markAsScheduled();
 
         $appointmentDate = $appointment->scheduled_at->format('M d, Y at g:i A');
+
         return [
             'action' => 'booked',
             'appointment_id' => $appointment->id,
@@ -117,7 +116,7 @@ class AIAppointmentHandler
             ->where('status', '!=', 'cancelled')
             ->first();
 
-        if (!$appointment) {
+        if (! $appointment) {
             return ['prompt' => 'You don\'t have any upcoming appointments to cancel. Is there anything else I can help you with?'];
         }
 
@@ -129,6 +128,7 @@ class AIAppointmentHandler
         ]);
 
         $appointmentDate = $appointment->scheduled_at->format('M d, Y at g:i A');
+
         return [
             'action' => 'cancelled',
             'appointment_id' => $appointment->id,
@@ -154,7 +154,7 @@ class AIAppointmentHandler
             ->where('status', '!=', 'postponed')
             ->first();
 
-        if (!$appointment) {
+        if (! $appointment) {
             return ['prompt' => 'You don\'t have any upcoming appointments to postpone. Would you like to book a new one?'];
         }
 
@@ -177,6 +177,7 @@ class AIAppointmentHandler
 
         $oldDate = $appointment->scheduled_at->format('M d, Y at g:i A');
         $newDateFormatted = $newDate->format('M d, Y at g:i A');
+
         return [
             'action' => 'postponed',
             'appointment_id' => $appointment->id,

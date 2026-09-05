@@ -84,12 +84,13 @@ class TwilioController extends Controller
         if (curl_errno($ch)) {
             $error_msg = curl_error($ch);
             curl_close($ch);
-            return "Curl error: " . $error_msg;
+
+            return 'Curl error: '.$error_msg;
         }
 
         curl_close($ch);
 
         echo $response;
-        return;
+
     }
 }

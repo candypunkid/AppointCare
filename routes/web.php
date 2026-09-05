@@ -1,17 +1,24 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\LandingContentController;
 use App\Http\Controllers\AiController;
+use App\Http\Controllers\CallSimulatorController;
 use App\Http\Controllers\LandingController;
-
+use App\Http\Controllers\PublicBookingController;
+use Illuminate\Support\Facades\Route;
 
 // Main app routes
 Route::get('/', LandingController::class)->name('home');
 
+// Public booking form
+Route::get('/booking', [PublicBookingController::class, 'show'])->name('booking');
+
+// Local AI call simulator (offline testing, exercises the real Twilio webhook pipeline)
+Route::get('/call-simulator', [CallSimulatorController::class, 'index'])->name('simulator');
+Route::get('/api/simulator/appointment/{appointment}/status', [CallSimulatorController::class, 'appointmentStatus'])->name('simulator.status');
+
 // Module routes are automatically registered by Nwidart Modules
 // User module routes are loaded from Modules/User/routes/web.php
-
 
 // AI endpoint for frontpage assistant
 Route::post('/ai/respond', [AiController::class, 'respond'])->name('ai.respond')->middleware('throttle:10,1');

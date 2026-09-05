@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Events\AppointmentConfirmed;
 use App\Events\AppointmentCancelled;
+use App\Events\AppointmentConfirmed;
 use App\Events\AppointmentRescheduled;
 use App\Listeners\SendSMSNotification;
 use App\Listeners\UpdateAnalytics;

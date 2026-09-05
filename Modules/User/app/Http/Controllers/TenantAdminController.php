@@ -5,7 +5,6 @@ namespace Modules\User\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\AppointmentRequest;
-use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -34,6 +33,8 @@ class TenantAdminController extends Controller
             'appointmentCount' => $appointmentCount,
             'requestCount' => $requestCount,
             'activeCustomers' => $activeCustomers,
+            'newRequestCount' => AppointmentRequest::where('tenant_id', $tenant->id)->where('status', 'new')->count(),
+            'recentRequests' => AppointmentRequest::where('tenant_id', $tenant->id)->latest()->take(10)->get(),
         ]);
     }
 }

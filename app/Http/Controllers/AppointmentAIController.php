@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\MakeReminderCallJob;
 use App\Models\Appointment;
+use App\Models\Tenant;
 use App\Models\User;
 use App\Repositories\AppointmentRepository;
 use App\Services\AppointmentService;
 use App\Services\ConversationService;
 use App\Services\OpenAIService;
 use App\Services\TwilioService;
+use App\Support\PhoneHelper;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class AppointmentAIController extends Controller
 {
@@ -115,7 +119,7 @@ class AppointmentAIController extends Controller
             ], 422);
         }
 
-        \App\Jobs\MakeReminderCallJob::dispatch($appointment);
+        MakeReminderCallJob::dispatch($appointment);
 
         return response()->json([
             'success' => true,
@@ -175,22 +179,26 @@ class AppointmentAIController extends Controller
         ]);
 
         try {
+            $tenantId = tenant_id() ?? Tenant::where('is_active', true)->value('id');
+            $customerPhone = PhoneHelper::normalizeToE164($validated['customer_phone']);
+
             $customer = User::where('email', $validated['customer_email'])->first();
 
             if (! $customer) {
                 $customer = User::create([
+                    'tenant_id' => $tenantId,
                     'name' => $validated['customer_name'],
                     'email' => $validated['customer_email'],
-                    'phone' => $validated['customer_phone'],
-                    'password' => bcrypt(\Illuminate\Support\Str::random(16)),
+                    'phone' => $customerPhone,
+                    'password' => bcrypt(Str::random(16)),
                     'role' => 'customer',
                 ]);
             } else {
-                $customer->update(['phone' => $validated['customer_phone']]);
+                $customer->update(['phone' => $customerPhone]);
             }
 
             $appointment = Appointment::create([
-                'tenant_id' => tenant_id(),
+                'tenant_id' => $tenantId,
                 'customer_id' => $customer->id,
                 'service' => $validated['service'] ?? 'General Appointment',
                 'scheduled_at' => $validated['appointment_date'],
@@ -198,7 +206,7 @@ class AppointmentAIController extends Controller
                 'notes' => $validated['description'] ?? null,
             ]);
 
-            \App\Jobs\MakeReminderCallJob::dispatch($appointment);
+            MakeReminderCallJob::dispatch($appointment);
 
             return response()->json([
                 'success' => true,
@@ -207,9 +215,10 @@ class AppointmentAIController extends Controller
             ], 201);
         } catch (\Exception $e) {
             Log::error('Booking + call failed', ['error' => $e->getMessage()]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create appointment. ' . $e->getMessage(),
+                'message' => 'Failed to create appointment. '.$e->getMessage(),
             ], 500);
         }
     }

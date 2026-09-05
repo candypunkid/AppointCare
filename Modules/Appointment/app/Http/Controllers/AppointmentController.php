@@ -3,11 +3,12 @@
 namespace Modules\Appointment\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Modules\Appointment\Http\Requests\StoreAppointmentRequest;
-use Modules\Appointment\Models\Appointment;
-use Modules\Appointment\Jobs\InitiateAICall;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Modules\Appointment\Http\Requests\StoreAppointmentRequest;
+use Modules\Appointment\Jobs\InitiateAICall;
+use Modules\Appointment\Models\Appointment;
 
 class AppointmentController extends Controller
 {
@@ -23,7 +24,7 @@ class AppointmentController extends Controller
                 'appointment_id' => $appointment->id,
             ], 201);
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Appointment creation failed: ' . $e->getMessage());
+            Log::error('Appointment creation failed: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,

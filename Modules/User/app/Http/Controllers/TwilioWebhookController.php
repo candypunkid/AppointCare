@@ -10,10 +10,12 @@ use App\Services\AIAppointmentHandler;
 use App\Services\TwilioService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Twilio\Twiml\VoiceResponse;
 
 class TwilioWebhookController extends Controller
 {
     protected TwilioService $twilio;
+
     protected AIAppointmentHandler $aiHandler;
 
     public function __construct(TwilioService $twilio, AIAppointmentHandler $aiHandler)
@@ -34,7 +36,7 @@ class TwilioWebhookController extends Controller
         // Get or create conversation
         $conversation = AIConversation::where('twilio_call_sid', $callSid)->first();
 
-        if (!$conversation) {
+        if (! $conversation) {
             $conversation = AIConversation::create([
                 'tenant_id' => $tenant->id,
                 'customer_phone' => $from,
@@ -63,14 +65,14 @@ class TwilioWebhookController extends Controller
 
         $conversation = AIConversation::where('twilio_call_sid', $callSid)->first();
 
-        if (!$conversation) {
+        if (! $conversation) {
             return $this->errorResponse('Conversation not found');
         }
 
         // Process the input
         $result = $this->aiHandler->processUserInput($conversation, $digit);
 
-        $twiml = new \Twilio\Twiml\VoiceResponse();
+        $twiml = new VoiceResponse;
 
         if (isset($result['action'])) {
             // Action was taken (booked, cancelled, postponed)
@@ -184,7 +186,7 @@ class TwilioWebhookController extends Controller
      */
     protected function errorResponse(string $message): Response
     {
-        $twiml = new \Twilio\Twiml\VoiceResponse();
+        $twiml = new VoiceResponse;
         $twiml->say("Sorry, something went wrong. {$message}", ['voice' => 'alice']);
         $twiml->hangup();
 

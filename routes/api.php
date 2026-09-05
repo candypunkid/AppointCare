@@ -3,6 +3,7 @@
 use App\Http\Controllers\AppointmentAIController;
 use App\Http\Controllers\TwilioController;
 use App\Http\Controllers\VoiceWebhookController;
+use App\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 
 // Health check
@@ -11,7 +12,7 @@ Route::get('/health', function () {
 });
 
 // Twilio webhook routes (no CSRF, no auth - called by Twilio)
-Route::prefix('twilio')->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class])->group(function () {
+Route::prefix('twilio')->withoutMiddleware([VerifyCsrfToken::class])->group(function () {
     Route::post('/voice', [VoiceWebhookController::class, 'handleVoice'])->name('api.twilio.voice');
     Route::post('/status', [VoiceWebhookController::class, 'handleStatus'])->name('api.twilio.status');
     Route::post('/outbound-call', [VoiceWebhookController::class, 'handleOutboundCall'])->name('api.twilio.outbound');

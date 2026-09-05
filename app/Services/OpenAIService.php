@@ -8,19 +8,19 @@ use Illuminate\Support\Facades\Log;
 class OpenAIService
 {
     protected mixed $client;
+
     protected string $model;
+
     protected bool $mock;
 
     public function __construct()
     {
         $apiKey = config('services.openai.key');
         $this->model = config('services.openai.model', 'gpt-4o-mini');
-        $this->mock = false;
+        $this->mock = (bool) env('AI_MOCK', false) || empty($apiKey);
 
-        if ($apiKey) {
+        if (! $this->mock) {
             $this->client = \OpenAI::client($apiKey);
-        } else {
-            $this->mock = (bool) env('AI_MOCK', true);
         }
     }
 
@@ -41,16 +41,37 @@ class OpenAIService
 
         $system = $options['system'] ?? 'You are a helpful assistant for AppointCare.';
 
-        $response = $this->client->chat()->create([
-            'model' => $this->model,
-            'messages' => [
-                ['role' => 'system', 'content' => $system],
-                ['role' => 'user', 'content' => $prompt],
-            ],
-            'max_tokens' => $options['max_tokens'] ?? 500,
-            'temperature' => $options['temperature'] ?? 0.3,
-            'response_format' => $options['response_format'] ?? null,
-        ]);
+        $attempts = 0;
+        while (true) {
+            try {
+                $response = $this->client->chat()->create([
+                    'model' => $this->model,
+                    'messages' => [
+                        ['role' => 'system', 'content' => $system],
+                        ['role' => 'user', 'content' => $prompt],
+                    ],
+                    'max_tokens' => $options['max_tokens'] ?? 500,
+                    'temperature' => $options['temperature'] ?? 0.3,
+                    'response_format' => $options['response_format'] ?? null,
+                ]);
+                break;
+            } catch (Exception $e) {
+                $isRateLimited = str_contains($e->getMessage(), 'rate limit');
+
+                if ($isRateLimited && $attempts < 3) {
+                    $attempts++;
+                    Log::warning('OpenAI rate limited, retrying', [
+                        'attempt' => $attempts,
+                        'error' => $e->getMessage(),
+                    ]);
+                    sleep($attempts);
+
+                    continue;
+                }
+
+                throw $e;
+            }
+        }
 
         $choice = $response->choices[0] ?? null;
 
@@ -78,19 +99,21 @@ class OpenAIService
 
             if (json_last_error() !== JSON_ERROR_NONE) {
                 Log::warning('OpenAI returned non-JSON response', ['response' => $response]);
+
                 return $this->defaultIntent();
             }
 
             return array_merge($this->defaultIntent(), $result);
         } catch (Exception $e) {
             Log::error('OpenAI intent analysis failed', ['error' => $e->getMessage()]);
+
             return $this->defaultIntent();
         }
     }
 
     protected function buildSystemPrompt(): string
     {
-        return <<<PROMPT
+        return <<<'PROMPT'
 You are an AI receptionist for AppointCare, an appointment management system.
 Your role is to analyze customer responses during appointment reminder calls.
 
@@ -160,7 +183,47 @@ PROMPT;
 
     protected function mockResponse(string $prompt): string
     {
-        if (stripos($prompt, 'confirm') !== false || stripos($prompt, 'yes') !== false) {
+        $customerLines = [];
+        preg_match_all('/customer:\s*(.+)$/m', $prompt, $matches);
+        $customerLines = array_map('trim', $matches[1] ?? []);
+        $text = strtolower(end($customerLines) ?: $prompt);
+
+        $rescheduleWords = ['reschedule', 'rescheduled', 'postpone', 'postponed', 'post my', 'instead', 'another day', 'another time', 'another slot', 'any other', 'change the', 'change my', 'next week', 'next month', 'on monday', 'on tuesday', 'on wednesday', 'on thursday', 'on friday', 'on saturday', 'on sunday'];
+        foreach ($rescheduleWords as $word) {
+            if (str_contains($text, $word)) {
+                [$newDate, $newTime] = $this->extractRescheduleDateTime($text);
+
+                $responseMessage = $newDate
+                    ? 'I have rescheduled your appointment to '.($newDate.($newTime ? ' at '.$newTime : '')).'. Thank you!'
+                    : 'I can help you reschedule. What date and time would you prefer?';
+
+                return json_encode([
+                    'intent' => 'reschedule_appointment',
+                    'confidence' => 0.85,
+                    'response_message' => $responseMessage,
+                    'new_date' => $newDate ?? '',
+                    'new_time' => $newTime ?? '',
+                ]);
+            }
+        }
+
+        $cancelWords = ['cancel', 'cancelled', "won't be able", "won't come", "won't attend", 'not be able', 'not able', 'cannot', "can't", "can not", 'unable', 'not coming', "can't make it", 'not going to', 'won one'];
+        if (preg_match('/\bno\b/', str_replace(['no,', 'no '], [' no ', ' no '], $text)) || str_starts_with($text, 'no ')) {
+            $cancelWords[] = 'xno';
+        }
+        foreach ($cancelWords as $word) {
+            if (str_contains($text, $word)) {
+                return json_encode([
+                    'intent' => 'cancel_appointment',
+                    'confidence' => 0.9,
+                    'response_message' => 'I understand. Your appointment has been cancelled.',
+                    'new_date' => '',
+                    'new_time' => '',
+                ]);
+            }
+        }
+
+        if (preg_match('/\byes\b/', $text) || str_contains($text, 'confirm') || str_contains($text, 'will attend') || str_contains($text, 'attend') || str_contains($text, "i'll be") || str_contains($text, 'will be there') || str_contains($text, 'be there')) {
             return json_encode([
                 'intent' => 'confirm_appointment',
                 'confidence' => 0.95,
@@ -170,27 +233,7 @@ PROMPT;
             ]);
         }
 
-        if (stripos($prompt, 'cancel') !== false || stripos($prompt, "won't be able") !== false) {
-            return json_encode([
-                'intent' => 'cancel_appointment',
-                'confidence' => 0.9,
-                'response_message' => 'I understand. Your appointment has been cancelled.',
-                'new_date' => '',
-                'new_time' => '',
-            ]);
-        }
-
-        if (stripos($prompt, 'reschedule') !== false || stripos($prompt, 'monday') !== false || stripos($prompt, 'instead') !== false) {
-            return json_encode([
-                'intent' => 'reschedule_appointment',
-                'confidence' => 0.85,
-                'response_message' => 'I can help you reschedule. What date and time would you prefer?',
-                'new_date' => '',
-                'new_time' => '',
-            ]);
-        }
-
-        if (stripos($prompt, 'speak') !== false || stripos($prompt, 'human') !== false || stripos($prompt, 'person') !== false) {
+        if (str_contains($text, 'speak') || str_contains($text, 'human') || str_contains($text, 'person') || str_contains($text, 'representative') || str_contains($text, 'receptionist') || str_contains($text, 'agent')) {
             return json_encode([
                 'intent' => 'transfer_to_human',
                 'confidence' => 0.95,
@@ -201,5 +244,47 @@ PROMPT;
         }
 
         return json_encode($this->defaultIntent());
+    }
+
+    protected function extractRescheduleDateTime(string $text): array
+    {
+        $newDate = null;
+        $newTime = null;
+
+        if (preg_match('/\b(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)\b/i', $text, $m)) {
+            $hour = (int) $m[1];
+            $minute = isset($m[2]) ? (int) $m[2] : 0;
+            $ampm = strtolower($m[3]);
+
+            if ($ampm[0] === 'p' && $hour < 12) {
+                $hour += 12;
+            }
+            if ($ampm[0] === 'a' && $hour === 12) {
+                $hour = 0;
+            }
+
+            $newTime = sprintf('%02d:%02d', $hour, $minute);
+        } elseif (preg_match('/\b(\d{1,2}):(\d{2})\b/', $text, $m)) {
+            $newTime = sprintf('%02d:%02d', (int) $m[1], (int) $m[2]);
+        }
+
+        if (str_contains($text, 'tomorrow')) {
+            $newDate = now()->addDay()->format('Y-m-d');
+        } elseif (str_contains($text, 'next week')) {
+            $newDate = now()->addWeek()->format('Y-m-d');
+        } elseif (preg_match('/\b(?:on |this |next )?(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/', $text, $m)) {
+            $days = ['monday' => 1, 'tuesday' => 2, 'wednesday' => 3, 'thursday' => 4, 'friday' => 5, 'saturday' => 6, 'sunday' => 0];
+            $target = $days[strtolower($m[1])];
+            $today = (int) now()->dayOfWeek;
+            $diff = ($target - $today + 7) % 7;
+
+            if ($diff === 0) {
+                $diff = 7;
+            }
+
+            $newDate = now()->addDays($diff)->format('Y-m-d');
+        }
+
+        return [$newDate, $newTime];
     }
 }

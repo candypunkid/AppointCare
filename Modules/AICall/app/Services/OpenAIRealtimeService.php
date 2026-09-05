@@ -2,10 +2,10 @@
 
 namespace Modules\AICall\Services;
 
-use WebSocket\Client as WsClient;
-use Modules\Appointment\Models\Appointment;
-use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Support\Facades\Log;
+use Modules\Appointment\Models\Appointment;
+use WebSocket\Client as WsClient;
 
 class OpenAIRealtimeService
 {
@@ -16,14 +16,14 @@ class OpenAIRealtimeService
      */
     public function createClient(Appointment $appointment): WsClient
     {
-        $wsUrl = "wss://api.openai.com/v1/realtime?model=" . config('aicall.openai.realtime_model', 'gpt-4o-realtime-preview');
+        $wsUrl = 'wss://api.openai.com/v1/realtime?model='.config('aicall.openai.realtime_model', 'gpt-4o-realtime-preview');
 
         $this->client = new WsClient($wsUrl, [
             'headers' => [
-                'Authorization' => 'Bearer ' . config('aicall.openai.api_key'),
+                'Authorization' => 'Bearer '.config('aicall.openai.api_key'),
                 'OpenAI-Beta' => 'realtime=v1',
             ],
-            'timeout' => 15
+            'timeout' => 15,
         ]);
 
         // Immediately configure session
@@ -37,10 +37,10 @@ class OpenAIRealtimeService
      */
     private function buildSessionConfig(Appointment $appointment): array
     {
-        $instructions = $this->getSystemInstructions() .
-            "\nYou are speaking with " . $appointment->customer_name .
-            " regarding their " . $appointment->appointment_type . " on " .
-            $appointment->appointment_date->format('F j, Y at g:i A') . ".";
+        $instructions = $this->getSystemInstructions().
+            "\nYou are speaking with ".$appointment->customer_name.
+            ' regarding their '.$appointment->appointment_type.' on '.
+            $appointment->appointment_date->format('F j, Y at g:i A').'.';
 
         return [
             'type' => 'session.update',
@@ -91,7 +91,7 @@ INSTRUCTIONS;
                 'type' => 'function',
                 'name' => 'confirm_appointment',
                 'description' => 'Confirm the appointment as scheduled.',
-                'parameters' => ['type' => 'object', 'properties' => (object)[]]
+                'parameters' => ['type' => 'object', 'properties' => (object) []],
             ],
             [
                 'type' => 'function',
@@ -100,9 +100,9 @@ INSTRUCTIONS;
                 'parameters' => [
                     'type' => 'object',
                     'properties' => [
-                        'reason' => ['type' => 'string', 'description' => 'The reason for cancellation']
-                    ]
-                ]
+                        'reason' => ['type' => 'string', 'description' => 'The reason for cancellation'],
+                    ],
+                ],
             ],
             [
                 'type' => 'function',
@@ -112,17 +112,17 @@ INSTRUCTIONS;
                     'type' => 'object',
                     'properties' => [
                         'new_datetime' => ['type' => 'string', 'description' => 'ISO 8601 formatted date string'],
-                        'reason' => ['type' => 'string']
+                        'reason' => ['type' => 'string'],
                     ],
-                    'required' => ['new_datetime']
+                    'required' => ['new_datetime'],
                 ],
             ],
             [
                 'type' => 'function',
                 'name' => 'end_call',
                 'description' => 'End the phone call.',
-                'parameters' => ['type' => 'object', 'properties' => (object)[]]
-            ]
+                'parameters' => ['type' => 'object', 'properties' => (object) []],
+            ],
         ];
     }
 
@@ -131,7 +131,7 @@ INSTRUCTIONS;
      */
     public function sendAudio(string $audioData): void
     {
-        if (!$this->client) {
+        if (! $this->client) {
             throw new Exception('WebSocket client not connected');
         }
 
@@ -148,7 +148,7 @@ INSTRUCTIONS;
      */
     public function listen(callable $onMessage, callable $onTranscript): void
     {
-        if (!$this->client) {
+        if (! $this->client) {
             throw new Exception('WebSocket client not connected');
         }
 
@@ -160,15 +160,14 @@ INSTRUCTIONS;
                 if (isset($data['type'])) {
                     match ($data['type']) {
                         'response.text.delta' => $onMessage($data['delta'] ?? ''),
-                        'conversation.item.input_audio_transcription.completed' =>
-                        $onTranscript($data['transcript'] ?? ''),
+                        'conversation.item.input_audio_transcription.completed' => $onTranscript($data['transcript'] ?? ''),
                         'response.done' => $this->handleResponseDone($data),
                         default => null,
                     };
                 }
             }
         } catch (Exception $e) {
-            Log::error("Error listening to OpenAI stream: " . $e->getMessage());
+            Log::error('Error listening to OpenAI stream: '.$e->getMessage());
             throw $e;
         }
     }
@@ -178,7 +177,7 @@ INSTRUCTIONS;
      */
     private function handleResponseDone(array $data): void
     {
-        Log::info("OpenAI response completed", [
+        Log::info('OpenAI response completed', [
             'stop_reason' => $data['response']['status'] ?? null,
         ]);
     }
@@ -190,7 +189,7 @@ INSTRUCTIONS;
     {
         if ($this->client && $this->client->isConnected()) {
             $this->client->close();
-            Log::info("Disconnected from OpenAI Realtime API");
+            Log::info('Disconnected from OpenAI Realtime API');
         }
     }
 

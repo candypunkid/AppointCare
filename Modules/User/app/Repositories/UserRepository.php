@@ -11,7 +11,7 @@ class UserRepository
     {
         $query = User::with('tenant');
 
-        if (!empty($filters['q'])) {
+        if (! empty($filters['q'])) {
             $q = $filters['q'];
             $query->where(function ($q2) use ($q) {
                 $q2->where('name', 'like', "%{$q}%")
@@ -19,15 +19,15 @@ class UserRepository
             });
         }
 
-        if (!empty($filters['role'])) {
+        if (! empty($filters['role'])) {
             $query->where('role', $filters['role']);
         }
 
-        if (!empty($filters['tenant_id'])) {
+        if (! empty($filters['tenant_id'])) {
             $query->where('tenant_id', $filters['tenant_id']);
         }
 
-        if (!empty($filters['sort']) && in_array($filters['sort'], ['name', 'email', 'created_at'])) {
+        if (! empty($filters['sort']) && in_array($filters['sort'], ['name', 'email', 'created_at'])) {
             $direction = ($filters['direction'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
             $query->orderBy($filters['sort'], $direction);
         } else {

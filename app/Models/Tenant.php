@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -9,7 +10,7 @@ use Illuminate\Support\Str;
 
 class Tenant extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -48,9 +49,10 @@ class Tenant extends Model
         $base = Str::slug($name);
         $slug = $base;
         $i = 1;
-        while (static::where('slug', $slug)->when($ignoreId, fn($q) => $q->where('id', '!=', $ignoreId))->exists()) {
-            $slug = $base . '-' . $i++;
+        while (static::where('slug', $slug)->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))->exists()) {
+            $slug = $base.'-'.$i++;
         }
+
         return $slug;
     }
 

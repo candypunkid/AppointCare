@@ -3,14 +3,14 @@
 namespace Modules\User\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Models\Tenant;
-use Illuminate\Support\Str;
+use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 
 class AuthController extends Controller
@@ -26,6 +26,7 @@ class AuthController extends Controller
         if (Auth::check()) {
             $user = Auth::user();
             $isSuper = method_exists($user, 'hasRole') ? $user->hasRole('super_admin') : ($user->role === 'super_admin');
+
             return redirect()->route($isSuper ? 'admin.dashboard' : ($user->role === 'tenant_admin' ? 'tenant.dashboard' : 'dashboard.index'));
         }
 
@@ -43,12 +44,13 @@ class AuthController extends Controller
         if (Auth::check()) {
             $user = Auth::user();
             $isSuper = method_exists($user, 'hasRole') ? $user->hasRole('super_admin') : ($user->role === 'super_admin');
+
             return redirect()->route($isSuper ? 'admin.dashboard' : ($user->role === 'tenant_admin' ? 'tenant.dashboard' : 'dashboard.index'));
         }
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', 'string', 'in:super_admin,tenant_admin,staff,customer'],
             'tenant_name' => ['required_if:role,tenant_admin', 'string', 'max:255'],
@@ -66,7 +68,7 @@ class AuthController extends Controller
             $candidate = $baseSlug;
             while (Tenant::where('slug', $candidate)->exists()) {
                 $counter++;
-                $candidate = $baseSlug . '-' . $counter;
+                $candidate = $baseSlug.'-'.$counter;
             }
             $tenant = Tenant::create([
                 'name' => $validated['tenant_name'],
@@ -99,6 +101,7 @@ class AuthController extends Controller
             if (! $isSuper && str_starts_with($path, '/admin')) {
                 return redirect()->route('tenant.dashboard');
             }
+
             return redirect()->to($intended);
         }
 
@@ -132,6 +135,7 @@ class AuthController extends Controller
         if (Auth::check()) {
             $user = Auth::user();
             $isSuper = method_exists($user, 'hasRole') ? $user->hasRole('super_admin') : ($user->role === 'super_admin');
+
             return redirect()->route($isSuper ? 'admin.dashboard' : ($user->role === 'tenant_admin' ? 'tenant.dashboard' : 'dashboard.index'));
         }
 
@@ -149,6 +153,7 @@ class AuthController extends Controller
         if (Auth::check()) {
             $user = Auth::user();
             $isSuper = method_exists($user, 'hasRole') ? $user->hasRole('super_admin') : ($user->role === 'super_admin');
+
             return redirect()->route($isSuper ? 'admin.dashboard' : ($user->role === 'tenant_admin' ? 'tenant.dashboard' : 'dashboard.index'));
         }
 
@@ -169,12 +174,14 @@ class AuthController extends Controller
                 if (! $isSuper && str_starts_with($path, '/admin')) {
                     return redirect()->route('tenant.dashboard');
                 }
+
                 return redirect()->to($intended);
             }
 
             return redirect()->route($isSuper ? 'admin.dashboard' : ($user->role === 'tenant_admin' ? 'tenant.dashboard' : 'dashboard.index'));
         }
         Log::warning('AuthController.login failed', ['email' => $request->input('email'), 'ip' => $request->ip()]);
+
         return back()->withErrors([
             'email' => 'The provided credentials do not match our records.',
         ])->onlyInput('email');

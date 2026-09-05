@@ -79,7 +79,7 @@ class Appointment extends Model
         $this->update(['status' => 'confirmed']);
     }
 
-    public function markAsCompleted(string $transcript = null, string $summary = null): void
+    public function markAsCompleted(?string $transcript = null, ?string $summary = null): void
     {
         $this->update([
             'status' => 'completed',
@@ -93,22 +93,22 @@ class Appointment extends Model
         $this->update(['status' => 'failed']);
     }
 
-    public function confirm(string $notes = null): void
+    public function confirm(?string $notes = null): void
     {
         $this->update(['status' => 'confirmed', 'notes' => $notes]);
     }
 
-    public function cancel(string $reason = null): void
+    public function cancel(?string $reason = null): void
     {
         $this->update(['status' => 'cancelled', 'notes' => $reason]);
     }
 
-    public function reschedule(string $newDateTime, string $notes = null): void
+    public function reschedule(string $newDateTime, ?string $notes = null): void
     {
         $this->update([
             'status' => 'rescheduled',
             'appointment_date' => $newDateTime,
-            'notes' => $notes
+            'notes' => $notes,
         ]);
     }
 }

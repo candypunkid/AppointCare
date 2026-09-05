@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Modules\Appointment\Models\Appointment;
-use Modules\Appointment\Jobs\InitiateAICall;
 use Modules\Twilio\Services\TwilioService;
 
 class TwilioWebhookController extends Controller

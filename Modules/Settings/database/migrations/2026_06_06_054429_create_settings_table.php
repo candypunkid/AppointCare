@@ -9,7 +9,6 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-
     public function up(): void
     {
         Schema::create('settings', function (Blueprint $table) {
@@ -37,7 +36,6 @@ return new class extends Migration
             $table->string('github')->nullable();
             $table->string('gmail')->nullable();
 
-
             $table->longText('map_url')->nullable();
             $table->longText('subscribe_sub_title')->nullable();
             $table->string('subscribe_main_title')->nullable();
@@ -45,7 +43,6 @@ return new class extends Migration
             $table->string('news_main_title')->nullable();
             $table->longText('blog_sub_title')->nullable();
             $table->string('blog_main_title')->nullable();
-
 
             $table->string('first_main_title')->nullable();
             $table->string('second_main_title')->nullable();
@@ -74,8 +71,6 @@ return new class extends Migration
             $table->string('image_five')->nullable();
             $table->string('image_six')->nullable();
             $table->string('image_seven')->nullable();
-
-
 
             $table->string('meta_title')->nullable();
             $table->string('meta_keywords')->nullable();

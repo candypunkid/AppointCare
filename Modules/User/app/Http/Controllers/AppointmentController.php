@@ -6,14 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\AIConversation;
 use App\Models\Appointment;
 use App\Models\AppointmentRequest;
+use App\Models\Tenant;
 use App\Services\AIAppointmentHandler;
 use App\Services\TwilioService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class AppointmentController extends Controller
 {
     protected AIAppointmentHandler $aiHandler;
+
     protected TwilioService $twilio;
 
     public function __construct(AIAppointmentHandler $aiHandler, TwilioService $twilio)
@@ -53,7 +55,7 @@ class AppointmentController extends Controller
 
         // Resolve tenant: prefer current tenant, fall back to first tenant if available
         if (! $tenant) {
-            $tenant = \App\Models\Tenant::first();
+            $tenant = Tenant::first();
         }
 
         if (! $tenant) {
@@ -69,7 +71,7 @@ class AppointmentController extends Controller
             'customer_phone' => $validated['phone'],
             'service' => $validated['service'],
             'preferred_at' => $validated['preferred_date'] && $validated['preferred_time']
-                ? \Carbon\Carbon::createFromFormat('Y-m-d H:i', $validated['preferred_date'] . ' ' . $validated['preferred_time'])
+                ? Carbon::createFromFormat('Y-m-d H:i', $validated['preferred_date'].' '.$validated['preferred_time'])
                 : null,
             'message' => $validated['message'] ?? null,
             'status' => 'new',
@@ -155,7 +157,7 @@ class AppointmentController extends Controller
         $tenant = tenant();
         $user = auth()->user();
 
-        if ($appointment->tenant_id !== $tenant->id || !$user->isStaff()) {
+        if ($appointment->tenant_id !== $tenant->id || ! $user->isStaff()) {
             abort(403);
         }
 
@@ -173,7 +175,7 @@ class AppointmentController extends Controller
         $tenant = tenant();
         $user = auth()->user();
 
-        if ($appointment->tenant_id !== $tenant->id || !$user->isStaff()) {
+        if ($appointment->tenant_id !== $tenant->id || ! $user->isStaff()) {
             abort(403);
         }
 

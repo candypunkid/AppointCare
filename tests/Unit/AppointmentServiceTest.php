@@ -66,8 +66,31 @@ class AppointmentServiceTest extends TestCase
 
         $this->service->rescheduleAppointment($appointment, $callLog, 0.85, '2026-06-28', '15:00');
 
-        $this->assertEquals('rescheduled', $appointment->fresh()->status);
-        $this->assertEquals('2026-06-28 15:00:00', $appointment->fresh()->scheduled_at->format('Y-m-d H:i:s'));
+        $fresh = $appointment->fresh();
+        $this->assertEquals('rescheduled', $fresh->status);
+        $this->assertEquals('2026-06-28 15:00:00', $fresh->scheduled_at->format('Y-m-d H:i:s'));
+        $this->assertEquals('2026-06-28 15:00:00', $fresh->rescheduled_at->format('Y-m-d H:i:s'));
+        $this->assertNotNull($fresh->original_scheduled_at);
+    }
+
+    public function test_it_does_not_reschedule_when_no_date_provided(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer']);
+        $scheduledAt = now()->addDay();
+        $appointment = Appointment::factory()->create([
+            'customer_id' => $customer->id,
+            'status' => 'pending',
+            'scheduled_at' => $scheduledAt,
+        ]);
+        $callLog = CallLog::factory()->create(['appointment_id' => $appointment->id]);
+
+        $this->service->rescheduleAppointment($appointment, $callLog, 0.85, '', '');
+
+        $fresh = $appointment->fresh();
+        $this->assertEquals('pending', $fresh->status);
+        $this->assertEquals($scheduledAt->format('Y-m-d H:i:s'), $fresh->scheduled_at->format('Y-m-d H:i:s'));
+        $this->assertNull($fresh->rescheduled_at);
+        $this->assertNull($fresh->original_scheduled_at);
     }
 
     public function test_it_checks_slot_availability(): void

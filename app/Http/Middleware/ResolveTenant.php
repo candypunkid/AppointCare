@@ -29,7 +29,7 @@ class ResolveTenant
         // Skip if it's a reserved subdomain (like www, mail, etc.)
         $reservedSubdomains = ['www', 'mail', 'ftp', 'admin', 'api'];
 
-        if ($subdomain && !in_array($subdomain, $reservedSubdomains)) {
+        if ($subdomain && ! in_array($subdomain, $reservedSubdomains)) {
             // Try to find tenant by slug (subdomain)
             $tenant = Tenant::where('slug', $subdomain)
                 ->where('is_active', true)

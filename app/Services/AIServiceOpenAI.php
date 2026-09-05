@@ -7,7 +7,9 @@ use Exception;
 class AIService
 {
     protected $client;
+
     protected string $model;
+
     protected bool $mock = false;
 
     public function __construct()
@@ -38,7 +40,8 @@ class AIService
         // Mock/demo response when SDK or key not available
         if ($this->mock && empty($this->client)) {
             // simple canned reply for demo purposes
-            $short = strlen($prompt) > 200 ? substr($prompt, 0, 197) . '...' : $prompt;
+            $short = strlen($prompt) > 200 ? substr($prompt, 0, 197).'...' : $prompt;
+
             return "(Demo) I received your question: \"{$short}\".\n\nThis is a mock response because no OpenAI API key is configured. Set OPENAI_API_KEY in your .env to enable real responses.";
         }
 

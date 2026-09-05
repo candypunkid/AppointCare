@@ -17,7 +17,9 @@ class MakeReminderCallJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $timeout = 300;
+
     public int $tries = 3;
+
     public int $backoff = 60;
 
     public function __construct(
@@ -34,6 +36,7 @@ class MakeReminderCallJob implements ShouldQueue
             Log::warning('Cannot make reminder call: customer has no phone', [
                 'appointment_id' => $this->appointment->id,
             ]);
+
             return;
         }
 
@@ -42,18 +45,18 @@ class MakeReminderCallJob implements ShouldQueue
                 'appointment_id' => $this->appointment->id,
                 'status' => $this->appointment->status,
             ]);
+
             return;
         }
 
         try {
-            $voiceUrl = route('api.twilio.voice', ['appointment_id' => $this->appointment->id]);
-            $statusUrl = route('api.twilio.status', ['appointment_id' => $this->appointment->id]);
+            $voiceUrl = $twilioService->createGatherUrlForAppointment($this->appointment->id);
+            $statusUrl = $twilioService->createStatusUrlForAppointment($this->appointment->id);
 
             $result = $twilioService->initiateVoiceCall(
                 $customer->phone,
                 $voiceUrl,
-                $statusUrl,
-                $this->appointment->id
+                $statusUrl
             );
 
             if ($result['success']) {
@@ -107,7 +110,7 @@ class MakeReminderCallJob implements ShouldQueue
 
         $this->appointment->update([
             'status' => 'pending',
-            'notes' => ($this->appointment->notes ?? '') . "\nReminder call failed: " . $exception->getMessage(),
+            'notes' => ($this->appointment->notes ?? '')."\nReminder call failed: ".$exception->getMessage(),
         ]);
     }
 }

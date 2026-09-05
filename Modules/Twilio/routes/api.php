@@ -1,7 +1,7 @@
 <?php
 
-use Modules\Twilio\Http\Controllers\TwilioWebhookController;
 use Illuminate\Support\Facades\Route;
+use Modules\Twilio\Http\Controllers\TwilioWebhookController;
 
 Route::prefix('twilio')->withoutMiddleware(['csrf', 'auth'])->group(function () {
     Route::post('/webhook/stream', [TwilioWebhookController::class, 'handleStream']);

@@ -3,6 +3,7 @@
 namespace Modules\User\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\AppointmentRequest;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -21,6 +22,8 @@ class SuperAdminController extends Controller
             'tenantCount' => Tenant::count(),
             'platformUserCount' => User::whereIn('role', ['tenant_admin', 'staff', 'customer'])->count(),
             'superAdminCount' => User::where('role', 'super_admin')->count(),
+            'newRequestCount' => AppointmentRequest::where('status', 'new')->count(),
+            'recentRequests' => AppointmentRequest::with('tenant')->latest()->take(10)->get(),
         ]);
     }
 }

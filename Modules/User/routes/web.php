@@ -1,15 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\User\Http\Controllers\AuthController;
-use Modules\User\Http\Controllers\UserController;
-use Modules\User\Http\Controllers\TwilioWebhookController;
 use Modules\User\Http\Controllers\AppointmentController;
-use Modules\User\Http\Controllers\SuperAdminController;
-use Modules\User\Http\Controllers\TenantsController;
+use Modules\User\Http\Controllers\AuthController;
 use Modules\User\Http\Controllers\PlatformUsersController;
+use Modules\User\Http\Controllers\SuperAdminController;
 use Modules\User\Http\Controllers\TenantAdminController;
+use Modules\User\Http\Controllers\TenantsController;
 use Modules\User\Http\Controllers\TenantUsersController;
+use Modules\User\Http\Controllers\TwilioWebhookController;
+use Modules\User\Http\Controllers\UserController;
 
 // Public appointment booking
 Route::get('/book-appointment', [AppointmentController::class, 'showBookingForm'])->name('appointments.book');

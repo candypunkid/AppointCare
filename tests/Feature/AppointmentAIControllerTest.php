@@ -45,7 +45,7 @@ class AppointmentAIControllerTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'admin']);
 
-        $response = $this->actingAs($user)->getJson('/api/ai/appointments/availability?date=' . now()->addDay()->format('Y-m-d'));
+        $response = $this->actingAs($user)->getJson('/api/ai/appointments/availability?date='.now()->addDay()->format('Y-m-d'));
 
         $response->assertOk()
             ->assertJsonStructure(['success', 'data' => ['available', 'existing_count', 'max_slots']]);
@@ -55,7 +55,7 @@ class AppointmentAIControllerTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'admin']);
 
-        $response = $this->actingAs($user)->getJson('/api/ai/appointments/slots?date=' . now()->addDay()->format('Y-m-d'));
+        $response = $this->actingAs($user)->getJson('/api/ai/appointments/slots?date='.now()->addDay()->format('Y-m-d'));
 
         $response->assertOk()
             ->assertJsonStructure(['success', 'data' => ['date', 'available_slots']]);

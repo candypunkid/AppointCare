@@ -2,8 +2,8 @@
 
 namespace Modules\Notification\Notifications;
 
-use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
 use Modules\Appointment\Models\Appointment;
 
 class AppointmentStatusNotification extends Notification
@@ -29,12 +29,12 @@ class AppointmentStatusNotification extends Notification
         };
 
         return (new MailMessage)
-            ->subject("Appointment " . ucfirst($this->appointment->status))
+            ->subject('Appointment '.ucfirst($this->appointment->status))
             ->greeting("Hello {$this->appointment->customer_name},")
             ->line($message)
-            ->line("Appointment Date: " . $this->appointment->appointment_date->format('F j, Y \a\t g:i A'))
+            ->line('Appointment Date: '.$this->appointment->appointment_date->format('F j, Y \a\t g:i A'))
             ->when($this->appointment->ai_summary, function (MailMessage $msg) {
-                return $msg->line("Summary: " . $this->appointment->ai_summary);
+                return $msg->line('Summary: '.$this->appointment->ai_summary);
             })
             ->action('View Appointment', url("/appointments/{$this->appointment->id}"))
             ->line('Thank you for using AppointCare!');

@@ -16,6 +16,7 @@ class ProcessConversationJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $timeout = 120;
+
     public int $tries = 2;
 
     public function __construct(
@@ -31,6 +32,7 @@ class ProcessConversationJob implements ShouldQueue
                 'call_log_id' => $this->callLog->id,
                 'status' => $this->callLog->status,
             ]);
+
             return;
         }
 
@@ -41,6 +43,7 @@ class ProcessConversationJob implements ShouldQueue
                 Log::warning('Cannot process conversation: no associated appointment', [
                     'call_log_id' => $this->callLog->id,
                 ]);
+
                 return;
             }
 

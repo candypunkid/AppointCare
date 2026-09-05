@@ -29,7 +29,7 @@ class ConversationServiceTest extends TestCase
             'status' => 'pending',
         ]);
 
-        $callLog = $this->service->startCallLog($appointment->id, 'CA' . str_repeat('0', 32));
+        $callLog = $this->service->startCallLog($appointment->id, 'CA'.str_repeat('0', 32));
 
         $this->assertInstanceOf(CallLog::class, $callLog);
         $this->assertEquals($appointment->id, $callLog->appointment_id);

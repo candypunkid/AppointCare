@@ -14,7 +14,7 @@ class CallLogFactory extends Factory
     {
         return [
             'appointment_id' => Appointment::factory(),
-            'twilio_call_sid' => 'CA' . fake()->regexify('[A-Za-z0-9]{32}'),
+            'twilio_call_sid' => 'CA'.fake()->regexify('[A-Za-z0-9]{32}'),
             'transcript' => null,
             'detected_intent' => null,
             'ai_response' => null,

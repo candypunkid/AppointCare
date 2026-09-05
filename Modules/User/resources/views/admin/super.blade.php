@@ -127,6 +127,68 @@
             <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-3xl group-hover:bg-indigo-500/10 transition-all"></div>
         </a>
     </div>
+
+    <!-- ATTENDANCE REQUESTS -->
+    <div class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-2xl p-8 shadow-2xl">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-white">Attendance Requests</h2>
+            <span class="px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs font-bold border border-amber-500/20 uppercase tracking-widest">
+                {{ $newRequestCount }} new
+            </span>
+        </div>
+
+        <p class="mb-6 text-sm text-slate-400">
+            Latest appointment requests submitted via the public booking form across all tenants.
+        </p>
+
+        @if($recentRequests->isEmpty())
+            <div class="p-8 rounded-2xl bg-white/5 border border-white/5 text-center text-slate-400">
+                No attendance / appointment requests yet.
+            </div>
+        @else
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-left text-xs uppercase tracking-widest text-slate-500 border-b border-white/10">
+                            <th class="py-3 px-4 font-bold">Customer</th>
+                            <th class="py-3 px-4 font-bold">Tenant</th>
+                            <th class="py-3 px-4 font-bold">Service</th>
+                            <th class="py-3 px-4 font-bold">Preferred</th>
+                            <th class="py-3 px-4 font-bold">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($recentRequests as $request)
+                            <tr class="border-b border-white/5 hover:bg-white/5 transition">
+                                <td class="py-3 px-4">
+                                    <div class="font-semibold text-white">{{ $request->customer_name }}</div>
+                                    <div class="text-xs text-slate-400">{{ $request->customer_phone }}</div>
+                                </td>
+                                <td class="py-3 px-4 text-slate-300">{{ $request->tenant?->name ?? '—' }}</td>
+                                <td class="py-3 px-4 capitalize text-slate-300">{{ $request->service }}</td>
+                                <td class="py-3 px-4 text-slate-300">
+                                    {{ $request->preferred_at?->format('M j, Y g:i A') ?? '—' }}
+                                </td>
+                                <td class="py-3 px-4">
+                                    @php
+                                        $statusColors = [
+                                            'new' => 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+                                            'contacted' => 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+                                            'scheduled' => 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+                                            'cancelled' => 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+                                        ];
+                                    @endphp
+                                    <span class="inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border {{ $statusColors[$request->status] ?? 'bg-white/10 text-slate-300 border-white/10' }}">
+                                        {{ $request->status }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </div>
 </div>
 
 <!-- CHART.JS -->
